@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraction Path Drill - Division Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Slate & brass */
+            --ink: #0F131A;
+            --panel: #161C25;
+            --inset: #1C232E;
+            --line: #2C3542;
+            --paper: #F4F1EA;
+            --muted: #B4BDC9;
+
+            --accent: #8FBFB3;
+            --accent-strong: #AEDACD;
+            --accent-soft: rgba(127, 176, 165, 0.10);
+
+            --gold: #D0AC68;
+            --gold-text: #EBD1A0;
+            --gold-soft: rgba(198, 161, 91, 0.09);
+
+            --sage: #A3D4B1;
+            --sage-soft: rgba(147, 196, 162, 0.12);
+            --rose: #E59A94;
+            --rose-soft: rgba(217, 140, 134, 0.12);
+
+            /* Legacy aliases used inline throughout the drill */
+            --primary: var(--accent);
+            --primary-hover: var(--accent-strong);
+            --bg-color: var(--ink);
+            --card-bg: var(--panel);
+            --text-color: var(--paper);
+            --border-color: var(--line);
+            --error: var(--rose);
+
+            --font-display: "Spectral", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+            --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            background:
+                radial-gradient(1200px 600px at 50% -10%, #18202B 0%, transparent 60%),
+                var(--ink);
+            color: var(--paper);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            background-color: var(--panel);
+            border-radius: 4px;
+            box-shadow: 0 30px 70px -40px rgba(0, 0, 0, 0.95);
+            width: 100%;
+            max-width: 660px;
+            padding: 18px 26px 20px;
+            max-height: calc(100vh - 20px);
+            overflow-y: auto;
+            box-sizing: border-box;
+            border: 1px solid var(--line);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+            gap: 12px;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--paper);
+            font-family: var(--font-display);
+            font-size: 1.32rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        .score-counter {
+            background: transparent;
+            color: var(--gold-text);
+            border: 1px solid var(--line);
+            padding: 4px 10px;
+            border-radius: 2px;
+            font-weight: 700;
+            font-size: 0.64rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .progress-bar {
+            background-color: var(--line);
+            border-radius: 0;
+            height: 2px;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-text) 100%);
+            height: 100%;
+            width: 16.66%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0;
+        }
+
+        .problem-box {
+            font-family: var(--font-display);
+            font-size: 1.45rem;
+            text-align: center;
+            margin-bottom: 14px;
+            background: var(--inset);
+            border: 1px solid var(--line);
+            padding: 12px 14px;
+            border-radius: 3px;
+            letter-spacing: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--paper);
+            font-weight: 600;
+            flex-wrap: wrap;
+        }
+
+        .step-container {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1.02rem;
+            margin-bottom: 9px;
+            color: var(--paper);
+            border-left: 2px solid var(--gold);
+            padding-left: 12px;
+            letter-spacing: 0.01em;
+        }
+
+        .clean-area {
+            background-color: var(--inset);
+            padding: 12px 10px;
+            border-radius: 3px;
+            border: 1px solid var(--line);
+            margin-bottom: 10px;
+            font-family: var(--font-display);
+        }
+
+        .fraction-row-layout {
+            font-family: var(--font-display);
+            font-size: 1.45rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--paper);
+            margin-bottom: 20px;
+        }
+
+        .fraction-display {
+            font-weight: 600;
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            margin: 0 4px;
+            position: relative;
+            font-family: var(--font-display);
+        }
+
+        .mixed-display {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 6px;
+        }
+
+        .mixed-whole {
+            font-size: 1em;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .numerator {
+            border-bottom: 2px solid var(--paper);
+            padding: 0 5px 2px 5px;
+            min-width: 25px;
+            display: inline-block;
+            position: relative;
+        }
+
+        .denominator {
+            padding: 2px 5px 0 5px;
+            min-width: 25px;
+            display: inline-block;
+            position: relative;
+        }
+
+        .cross-input {
+            position: absolute;
+            background: var(--panel);
+            border: 1px solid var(--gold);
+            color: var(--gold-text);
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            z-index: 5;
+        }
+
+        .cross-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--gold-soft);
+        }
+
+        .cross-input:disabled {
+            border-color: var(--sage);
+            color: var(--sage);
+        }
+
+        .fill-in-blank {
+            border: none;
+            background: transparent;
+            font-family: var(--font-display);
+            font-size: inherit;
+            color: var(--accent-strong);
+            caret-color: var(--gold);
+            text-align: center;
+            width: 40px;
+            padding: 0;
+            margin: 0 2px;
+            font-weight: 700;
+        }
+
+        .fill-in-blank:focus {
+            outline: none;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .standard-input-group {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: var(--inset);
+            border: 1px solid var(--line);
+            padding: 10px 14px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        input.std-input {
+            padding: 6px 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            color: var(--paper);
+            border-radius: 3px;
+            width: 100px;
+            text-align: center;
+            font-family: var(--font-display);
+        }
+
+        input.std-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-soft);
+        }
+
+        input:disabled {
+            opacity: 1;
+            color: var(--accent-strong);
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 9px 12px;
+            border-radius: 3px;
+            font-weight: 600;
+            display: none;
+            font-size: 0.84rem;
+            letter-spacing: 0.01em;
+        }
+
+        .feedback.correct {
+            background-color: var(--sage-soft);
+            color: var(--sage);
+            border: 1px solid rgba(147, 196, 162, 0.3);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background-color: var(--rose-soft);
+            color: var(--rose);
+            border: 1px solid rgba(217, 140, 134, 0.3);
+            display: block;
+        }
+
+        .tip-banner {
+            background-color: var(--gold-soft);
+            border-left: 2px solid var(--gold);
+            color: var(--gold-text);
+            padding: 9px 12px;
+            margin-bottom: 9px;
+            border-radius: 0 3px 3px 0;
+            font-size: 0.79rem;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        .tip-banner strong {
+            font-weight: 700;
+            color: #F5E3BE;
+        }
+
+        .sign-picker-btn {
+            background-color: transparent;
+            color: var(--paper);
+            border: 1px solid var(--line);
+            padding: 9px 24px;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+            transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sign-picker-btn:hover,
+        .sign-picker-btn:focus-visible {
+            background-color: var(--gold-soft);
+            border-color: var(--gold);
+            color: var(--gold-text);
+            outline: none;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        /* --- Keep, Change, Flip walkthrough --- */
+        .kcf-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-family: var(--font-display);
+        }
+
+        .kcf-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+            font-size: 1.45rem;
+            font-weight: 600;
+            color: var(--paper);
+            padding: 5px 0;
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .kcf-line.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .kcf-line.kcf-result {
+            border-top: 1px solid var(--line);
+            margin-top: 4px;
+            padding-top: 12px;
+            width: 100%;
+        }
+
+        /* Fixed-width columns keep every line stacked in the same vertical lanes */
+        .kcf-signslot {
+            flex: 0 0 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .kcf-cell {
+            flex: 0 0 auto;
+            min-width: 118px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .kcf-op {
+            flex: 0 0 46px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--accent-strong);
+        }
+
+        .kcf-eq {
+            flex: 0 0 74px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (max-height: 700px) {
+            .problem-box { font-size: 1.28rem; padding: 9px 12px; margin-bottom: 10px; }
+            .kcf-line { font-size: 1.28rem; padding: 3px 0; }
+            .tip-banner { font-size: 0.75rem; padding: 7px 11px; margin-bottom: 7px; }
+            .clean-area { padding: 9px 8px; }
+            h2 { font-size: 1.18rem; }
+            .step-title { font-size: 0.95rem; margin-bottom: 7px; }
+            p { font-size: 0.78rem; margin-bottom: 6px; }
+        }
+
+        @media (max-width: 540px) {
+            .container { padding: 24px 18px 26px; }
+            .kcf-line { font-size: 1.35rem; }
+            .kcf-cell { min-width: 84px; }
+            .kcf-op { flex: 0 0 32px; }
+            .kcf-eq { flex: 0 0 54px; }
+            .kcf-signslot { flex: 0 0 16px; }
+        }
+
+        .kcf-slot {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .kcf-label {
+            font-family: var(--font-ui);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold-text);
+            margin-top: 5px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .kcf-label.show {
+            opacity: 1;
+        }
+
+        .kcf-sign {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .flip-anim {
+            animation: flipY 0.7s ease-in-out;
+        }
+
+        @keyframes flipY {
+            0%   { transform: rotateX(0deg); }
+            50%  { transform: rotateX(90deg); }
+            100% { transform: rotateX(0deg); }
+        }
+
+        .op-swap {
+            animation: opSwap 0.6s ease-in-out;
+        }
+
+        @keyframes opSwap {
+            0%   { transform: scale(1) rotate(0deg); opacity: 1; }
+            45%  { transform: scale(0.3) rotate(90deg); opacity: 0; }
+            55%  { transform: scale(0.3) rotate(90deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .kcf-line, .flip-anim, .op-swap, .kcf-label, .step-container {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-top">
+        <h2>Fraction Division Drill</h2>
+        <div class="score-counter" id="scoreCounter">Problem: 1</div>
+    </div>
+    
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 16.66%;"></div>
+    </div>
+
+    <div class="problem-box" id="problemDisplay"></div>
+
+    <!-- STEP 0: Sign Determination -->
+    <div class="step-container" id="step0">
+        <div class="step-title">Step 1: Determine the Final Sign</div>
+        <div class="tip-banner">
+            <strong>Rule:</strong> Same signs make a positive answer; different signs make a negative answer!
+        </div>
+        <p style="color: var(--muted); text-align: center;">Will the final answer be positive or negative?</p>
+        <div style="text-align: center; margin-bottom: 15px;">
+            <button class="sign-picker-btn" onclick="selectSign('positive')">Positive (+)</button>
+            <button class="sign-picker-btn" onclick="selectSign('negative')">Negative (−)</button>
+        </div>
+        <div class="feedback" id="feedback0"></div>
+    </div>
+
+    <!-- STEP 1: Convert Mixed Numbers to Improper Fractions -->
+    <div class="step-container" id="stepMinus1">
+        <div class="step-title">Step 2: Convert Mixed Numbers to Improper Fractions</div>
+        <div class="tip-banner">
+            <strong>Rule:</strong> Since we have determined the sign, convert any mixed numbers into improper fractions using positive values. Keep signs outside!
+        </div>
+        <p style="color: var(--muted);" id="mixedConversionPromptText">Convert the mixed numbers into improper fractions:</p>
+        
+        <div class="clean-area" id="mixedConversionArea"></div>
+        <div class="feedback" id="feedbackMinus1"></div>
+    </div>
+
+    <!-- STEP 2: Reciprocal Setup (Keep-Change-Flip) -->
+    <div class="step-container" id="step1">
+        <div class="step-title">Step 3: Keep, Change, Flip (Reciprocal)</div>
+        <div class="tip-banner">
+            <strong>Rule:</strong> <strong>Keep</strong> the first fraction (already converted to improper if it was a mixed number), <strong>change</strong> division to multiplication, and <strong>flip</strong> the second fraction to its reciprocal using positive values.
+        </div>
+        <p style="color: var(--muted);">Watch the problem get rewritten as multiplication:</p>
+        
+        <div class="clean-area" id="reciprocalVisualArea"></div>
+        <div class="feedback" id="feedback1"></div>
+    </div>
+
+    <!-- STEP 3: Cross Simplify -->
+    <div class="step-container" id="step2">
+        <div class="step-title">Step 4: Cross Simplify</div>
+        <div class="tip-banner">
+            <strong>Cross-Canceling:</strong> Work with positive numbers only to reduce diagonally across the multiplication sign!
+        </div>
+        <p style="color: var(--muted);">Enter the simplified numbers diagonally:</p>
+        
+        <div class="clean-area" id="crossSimplifyVisualArea" style="text-align: center; font-size: 1.45rem; color: var(--paper); padding: 14px;"></div>
+        <div class="feedback" id="feedback2"></div>
+    </div>
+
+    <!-- STEP 4: Multiply Across -->
+    <div class="step-container" id="step3">
+        <div class="step-title">Step 5: Multiply Numerators and Denominators</div>
+        <div class="tip-banner">
+            <strong>Note:</strong> Multiply straight across using your positive numbers.
+        </div>
+        <p style="color: var(--muted);">Multiply straight across using your simplified numbers:</p>
+        
+        <div class="clean-area" id="step3DisplayArea" style="text-align: center; font-size: 1.45rem; color: var(--paper);"></div>
+
+        <div class="standard-input-group" id="multiplyContainer"></div>
+        <div class="feedback" id="feedback3"></div>
+    </div>
+
+    <!-- STEP 4.5: Simplify Improper/Raw Product -->
+    <div class="step-container" id="step3b">
+        <div class="step-title">Step 5.5: Simplify the Fraction</div>
+        <div class="tip-banner">
+            <strong>Simplify:</strong> Reduce your positive fraction to lowest terms! If the denominator is 1, simplify it to just the top number.
+        </div>
+        <p style="color: var(--muted);">Your product is not in simplest form. Enter the fully simplified fraction:</p>
+        
+        <div class="clean-area" id="step3bDisplayArea" style="text-align: center; font-size: 1.45rem; color: var(--paper);"></div>
+
+        <div class="standard-input-group" id="simplifyContainer"></div>
+        <div class="feedback" id="feedback3b"></div>
+    </div>
+
+    <!-- STEP 5: Mixed Number Conversion -->
+    <div class="step-container" id="step4">
+        <div class="step-title">Step 6: Convert to a Mixed Number</div>
+        <div class="tip-banner">
+            <strong>Note:</strong> Convert the positive improper fraction into a mixed number.
+        </div>
+        <p style="color: var(--muted);">Your product is improper. Convert it into a mixed number:</p>
+        
+        <div class="clean-area" id="step4DisplayArea" style="text-align: center; font-size: 1.45rem; color: var(--paper);"></div>
+
+        <div class="standard-input-group" id="mixedContainer"></div>
+        <div class="feedback" id="feedback4"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentProblemCount = 1;
+    let currentStep = 0;
+    let currentProblem = {};
+    let needsSimplification = false;
+    let needsMixedNumber = false;
+    let userChosenSign = '';
+    let hasMixedNumbers = false;
+
+    function gcd(a, b) {
+        a = Math.abs(a);
+        b = Math.abs(b);
+        return b === 0 ? a : gcd(b, a % b);
+    }
+
+    function generateProblem() {
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        const rawPool = [
+            {n1: 2, d1: 3, n2: 4, d2: 9},
+            {n1: 3, d1: 5, n2: 6, d2: 25},
+            {n1: 3, d1: 4, n2: 9, d2: 16},
+            {n1: 2, d1: 7, n2: 4, d2: 21},
+            {n1: 4, d1: 5, n2: 8, d2: 15},
+            {n1: 3, d1: 10, n2: 9, d2: 20},
+            {n1: 5, d1: 6, n2: 25, d2: 12},
+            {n1: 3, d1: 8, n2: 9, d2: 16},
+            {n1: 3, d1: 5, n2: 12, d2: 25},
+            {n1: 4, d1: 9, n2: 8, d2: 27},
+            {n1: 5, d1: 7, n2: 15, d2: 14},
+            {n1: 2, d1: 9, n2: 8, d2: 45},
+            {n1: 7, d1: 8, n2: 21, d2: 16},
+            {n1: 3, d1: 11, n2: 9, d2: 22},
+            {n1: 4, d1: 7, n2: 12, d2: 35}
+        ];
+
+        // Numerators that are less than the denominator AND already in lowest terms
+        function pickSimplifiedNumerator(den) {
+            const options = [];
+            for (let n = 1; n < den; n++) {
+                if (gcd(n, den) === 1) options.push(n);
+            }
+            return options[Math.floor(Math.random() * options.length)];
+        }
+
+        let basePair;
+        let isMixed1, isMixed2, d1, d2, n1_val, n2_val;
+        let formatType;
+
+        // Keep generating until we find a pair where, if mixed, the fraction part is proper AND fully simplified
+        do {
+            basePair = rawPool[Math.floor(Math.random() * rawPool.length)];
+            formatType = getRandomInt(0, 3);
+
+            isMixed1 = (formatType === 1 || formatType === 3);
+            isMixed2 = (formatType === 2 || formatType === 3);
+
+            d1 = basePair.d1;
+            d2 = basePair.d2;
+
+            // Fraction part of a mixed number must be proper and in simplest form (no 3 6/9)
+            n1_val = isMixed1 ? pickSimplifiedNumerator(d1) : basePair.n1;
+            n2_val = isMixed2 ? pickSimplifiedNumerator(d2) : basePair.n2;
+
+        } while ((isMixed1 && (n1_val >= d1 || gcd(n1_val, d1) !== 1)) ||
+                 (isMixed2 && (n2_val >= d2 || gcd(n2_val, d2) !== 1)));
+
+        let w1 = isMixed1 ? getRandomInt(1, 3) : 0;
+        let w2 = isMixed2 ? getRandomInt(1, 3) : 0;
+
+        const chosen = {isMixed1, w1, n1: n1_val, d1, isMixed2, w2, n2: n2_val, d2};
+        
+        hasMixedNumbers = chosen.isMixed1 || chosen.isMixed2;
+
+        let rawN1 = chosen.isMixed1 ? (chosen.w1 * chosen.d1 + chosen.n1) : chosen.n1;
+        let d1_val = chosen.d1;
+        let rawN2 = chosen.isMixed2 ? (chosen.w2 * chosen.d2 + chosen.n2) : chosen.n2;
+        let d2_val = chosen.d2;
+
+        let num1 = rawN1;
+        let den1 = d1_val;
+        let num2 = rawN2;
+        let den2 = d2_val;
+
+        const signPattern = Math.random();
+        if (signPattern < 0.5) {
+            if (Math.random() < 0.5) num1 *= -1;
+            else num2 *= -1;
+        } else {
+            num1 *= -1;
+            num2 *= -1;
+        }
+
+        const exactVal = (num1 / den1) / (num2 / den2);
+        const correctSign = exactVal >= 0 ? 'positive' : 'negative';
+
+        let absNum1 = Math.abs(num1);
+        let absDen1 = Math.abs(den1);
+        let absNum2 = Math.abs(num2);
+        let absDen2 = Math.abs(den2);
+
+        let flippedNum = absDen2;
+        let flippedDen = absNum2;
+
+        let g1 = gcd(absNum1, flippedDen);
+        let g2 = gcd(flippedNum, absDen1);
+
+        let redNum1 = absNum1 / g1;
+        let redFlippedDen = flippedDen / g1;
+        let redFlippedNum = flippedNum / g2;
+        let redDen1 = absDen1 / g2;
+
+        const rawFinalNum = redNum1 * redFlippedNum;
+        const rawFinalDen = redDen1 * redFlippedDen;
+
+        let finalGcd = gcd(rawFinalNum, rawFinalDen);
+        let fullySimplifiedNum = rawFinalNum / finalGcd;
+        let fullySimplifiedDen = rawFinalDen / finalGcd;
+
+        needsSimplification = (finalGcd > 1 || fullySimplifiedDen === 1);
+        needsMixedNumber = (fullySimplifiedDen > 1 && fullySimplifiedNum > fullySimplifiedDen);
+
+        currentProblem = {
+            isMixed1: chosen.isMixed1,
+            w1: chosen.w1,
+            n1: chosen.n1,
+            d1: chosen.d1,
+            isMixed2: chosen.isMixed2,
+            w2: chosen.w2,
+            n2: chosen.n2,
+            d2: chosen.d2,
+            f1: {num: num1, den: den1},
+            f2: {num: num2, den: den2},
+            correctSign: correctSign,
+            absF1: {num: absNum1, den: absDen1},
+            absF2: {num: absNum2, den: absDen2},
+            flippedNum: flippedNum,
+            flippedDen: flippedDen,
+            g1: g1,
+            g2: g2,
+            redNum1: redNum1,
+            redDen1: redDen1,
+            redFlippedNum: redFlippedNum,
+            redFlippedDen: redFlippedDen,
+            rawNum: rawFinalNum,
+            rawDen: rawFinalDen,
+            finalNum: fullySimplifiedNum,
+            finalDen: fullySimplifiedDen,
+            mixedWhole: Math.trunc(fullySimplifiedNum / fullySimplifiedDen),
+            mixedNum: fullySimplifiedNum % fullySimplifiedDen,
+            mixedDen: fullySimplifiedDen
+        };
+    }
+
+    function initProblem() {
+        clearKcfTimers();
+        generateProblem();
+        userChosenSign = '';
+        
+        document.getElementById('scoreCounter').innerText = `Problem: ${currentProblemCount}`;
+        document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+        
+        document.querySelectorAll('.feedback').forEach(el => {
+            el.className = 'feedback';
+            el.innerHTML = '';
+        });
+
+        currentStep = 0;
+        document.getElementById('step0').classList.add('active');
+        
+        updateProgressBar();
+        updateProblemDisplay();
+    }
+
+    function getTotalSteps() {
+        let total = hasMixedNumbers ? 6 : 5; 
+        if (!needsSimplification) total--;
+        if (!needsMixedNumber) total--;
+        return total;
+    }
+
+    function updateProgressBar() {
+        const totalSteps = getTotalSteps();
+        let activeIndex = currentStep === -1 ? 2 : (currentStep === 0 ? 1 : currentStep + (hasMixedNumbers ? 2 : 1));
+        if (currentStep === 3.5) {
+            activeIndex = totalSteps - (needsMixedNumber ? 1 : 0); 
+        }
+        const fillPercent = (Math.min(activeIndex, totalSteps) / totalSteps) * 100;
+        document.getElementById('progressFill').style.width = `${fillPercent}%`;
+    }
+
+    function formatFractionHTML(num, den) {
+        return `<div class="fraction-display">
+                    <span class="numerator">${num}</span>
+                    <span class="denominator">${den}</span>
+                </div>`;
+    }
+
+    function formatDisplayItem(f, isMixed, w, n, d, isNegative) {
+        const signPrefix = isNegative ? '−' : '';
+        if (isMixed) {
+            return `<div class="mixed-display">
+                        <span class="mixed-whole">${signPrefix}${w}</span>
+                        ${formatFractionHTML(n, d)}
+                    </div>`;
+        } else {
+            return `<span>${signPrefix}${formatFractionHTML(n, d)}</span>`;
+        }
+    }
+
+    function updateProblemDisplay(appendedSignHTML = '') {
+        const p = currentProblem;
+        const item1HTML = formatDisplayItem(p.f1, p.isMixed1, p.w1, p.n1, p.d1, p.f1.num < 0);
+        const item2HTML = formatDisplayItem(p.f2, p.isMixed2, p.w2, p.n2, p.d2, p.f2.num < 0);
+
+        document.getElementById('problemDisplay').innerHTML = `
+            ${item1HTML} 
+            <span style="margin: 0 8px;">÷</span> 
+            ${item2HTML}
+            ${appendedSignHTML}
+        `;
+    }
+
+    function selectSign(chosen) {
+        userChosenSign = chosen;
+        const fb = document.getElementById('feedback0');
+        if (chosen === currentProblem.correctSign) {
+            fb.className = 'feedback correct';
+            fb.innerHTML = `The final answer will be ${chosen}.`;
+            
+            const signSymbol = chosen === 'positive' ? '+' : '−';
+            const signDisplayHTML = `<span style="margin-left: 12px; font-size: 1.7rem; font-weight: bold; color: ${chosen === 'positive' ? 'var(--sage)' : 'var(--rose)'};">= ${signSymbol}</span>`;
+            updateProblemDisplay(signDisplayHTML);
+
+            setTimeout(() => {
+                if (hasMixedNumbers) {
+                    setStep(-1);
+                } else {
+                    setStep(1);
+                }
+            }, 700);
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerHTML = `Not quite. Compare the two signs again.`;
+        }
+    }
+
+    function setupMixedConversionStep() {
+        const p = currentProblem;
+        const container = document.getElementById('mixedConversionArea');
+        document.getElementById('feedbackMinus1').className = 'feedback';
+        document.getElementById('feedbackMinus1').innerHTML = '';
+
+        let html = '<div style="display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap;">';
+
+        if (p.isMixed1) {
+            html += `<div style="display: flex; align-items: center; gap: 8px;">
+                <div class="mixed-display">
+                    <span class="mixed-whole">${p.w1}</span>
+                    ${formatFractionHTML(p.n1, p.d1)}
+                </div>
+                <span style="font-size: 1.5rem; font-weight: bold;">=</span>
+                ${formatFractionHTML('<input type="number" id="conv_n1" class="fill-in-blank" oninput="checkMixedConversion()">', '<input type="number" id="conv_d1" class="fill-in-blank" value="' + p.absF1.den + '" readonly style="background:var(--inset);">')}
+            </div>`;
+        }
+        if (p.isMixed2) {
+            html += `<div style="display: flex; align-items: center; gap: 8px;">
+                <div class="mixed-display">
+                    <span class="mixed-whole">${p.w2}</span>
+                    ${formatFractionHTML(p.n2, p.d2)}
+                </div>
+                <span style="font-size: 1.5rem; font-weight: bold;">=</span>
+                ${formatFractionHTML('<input type="number" id="conv_n2" class="fill-in-blank" oninput="checkMixedConversion()">', '<input type="number" id="conv_d2" class="fill-in-blank" value="' + p.absF2.den + '" readonly style="background:var(--inset);">')}
+            </div>`;
+        }
+        html += '</div>';
+
+        container.innerHTML = html;
+
+        setTimeout(() => {
+            const firstInput = document.getElementById('conv_n1') || document.getElementById('conv_n2');
+            if (firstInput) firstInput.focus();
+        }, 50);
+    }
+
+    function checkMixedConversion() {
+        const p = currentProblem;
+        
+        let n1Input = document.getElementById('conv_n1');
+        let n2Input = document.getElementById('conv_n2');
+
+        if (n1Input && n1Input.value !== "" && parseInt(n1Input.value) === p.absF1.num && !n1Input.disabled) {
+            n1Input.disabled = true;
+            n1Input.style.color = 'var(--primary)';
+            if (n2Input && !n2Input.disabled) {
+                n2Input.focus();
+            }
+        }
+
+        let allCorrect = true;
+        if (p.isMixed1) {
+            if (!n1Input || parseInt(n1Input.value) !== p.absF1.num) allCorrect = false;
+        }
+        if (p.isMixed2) {
+            if (!n2Input || parseInt(n2Input.value) !== p.absF2.num) allCorrect = false;
+        }
+
+        const fb = document.getElementById('feedbackMinus1');
+        if (allCorrect) {
+            fb.className = 'feedback correct';
+            fb.innerHTML = 'Converted. Every number is now an improper fraction.';
+            setTimeout(() => {
+                setStep(1);
+            }, 600);
+        }
+    }
+
+    function setStep(step) {
+        currentStep = step;
+        document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+        
+        let targetId = `step${step}`;
+        if (step === -1) targetId = 'stepMinus1';
+        if (step === 3.5) targetId = 'step3b';
+        document.getElementById(targetId).classList.add('active');
+        
+        updateProgressBar();
+
+        if (step === -1) {
+            setupMixedConversionStep();
+        } else if (step === 1) {
+            setupStep1();
+        } else if (step === 2) {
+            setupStep2();
+        } else if (step === 3) {
+            setupStep3();
+        } else if (step === 3.5) {
+            setupStep3b();
+        } else if (step === 4) {
+            setupStep4();
+        }
+    }
+
+    let kcfTimers = [];
+
+    function clearKcfTimers() {
+        kcfTimers.forEach(t => clearTimeout(t));
+        kcfTimers = [];
+    }
+
+    function kcfLater(fn, delay) {
+        kcfTimers.push(setTimeout(fn, delay));
+    }
+
+    function signTagHTML() {
+        const isPositive = (userChosenSign || currentProblem.correctSign) === 'positive';
+        const symbol = isPositive ? '+' : '−';
+        const color = isPositive ? 'var(--sage)' : 'var(--rose)';
+        return `<span class="kcf-sign" style="color: ${color};">= ${symbol}</span>`;
+    }
+
+    // One operand rendered as: its own sign lane, then a fixed-width lane for the number
+    function kcfOperandHTML(isMixed, w, n, d, isNegative, id) {
+        const body = isMixed
+            ? `<div class="mixed-display"><span class="mixed-whole">${w}</span>${formatFractionHTML(n, d)}</div>`
+            : formatFractionHTML(n, d);
+        const inner = id ? `<div id="${id}">${body}</div>` : body;
+        return `<span class="kcf-signslot">${isNegative ? '−' : ''}</span><span class="kcf-cell">${inner}</span>`;
+    }
+
+    function setupStep1() {
+        const p = currentProblem;
+        const container = document.getElementById('reciprocalVisualArea');
+        document.getElementById('feedback1').className = 'feedback';
+        document.getElementById('feedback1').innerHTML = '';
+        clearKcfTimers();
+
+        // Line 1: the original problem, exactly as it was given
+        const orig1 = kcfOperandHTML(p.isMixed1, p.w1, p.n1, p.d1, p.f1.num < 0);
+        const orig2 = kcfOperandHTML(p.isMixed2, p.w2, p.n2, p.d2, p.f2.num < 0);
+
+        // Line 2: same problem with every mixed number written as an improper fraction
+        const imp1 = kcfOperandHTML(false, 0, p.absF1.num, p.absF1.den, p.f1.num < 0);
+        const imp2 = kcfOperandHTML(false, 0, p.absF2.num, p.absF2.den, p.f2.num < 0);
+
+        const improperLine = hasMixedNumbers ? `
+            <div class="kcf-line" id="kcfImproper">
+                ${imp1}
+                <span class="kcf-op">÷</span>
+                ${imp2}
+                <span class="kcf-eq">${signTagHTML()}</span>
+            </div>
+        ` : '';
+
+        container.innerHTML = `
+            <div class="kcf-stack">
+                <div class="kcf-line" id="kcfOriginal">
+                    ${orig1}
+                    <span class="kcf-op">÷</span>
+                    ${orig2}
+                    <span class="kcf-eq">${signTagHTML()}</span>
+                </div>
+
+                ${improperLine}
+
+                <div class="kcf-line kcf-result" id="kcfFlip">
+                    <span class="kcf-signslot"></span>
+                    <span class="kcf-cell">
+                        <span class="kcf-slot">
+                            <span id="kcfKeep">${formatFractionHTML(p.absF1.num, p.absF1.den)}</span>
+                            <span class="kcf-label" id="kcfKeepLabel">Keep</span>
+                        </span>
+                    </span>
+                    <span class="kcf-op">
+                        <span class="kcf-slot">
+                            <span id="kcfOperator" style="display: inline-block;">÷</span>
+                            <span class="kcf-label" id="kcfChangeLabel">Change</span>
+                        </span>
+                    </span>
+                    <span class="kcf-signslot"></span>
+                    <span class="kcf-cell">
+                        <span class="kcf-slot">
+                            <span id="kcfSecond">${formatFractionHTML(p.absF2.num, p.absF2.den)}</span>
+                            <span class="kcf-label" id="kcfFlipLabel">Flip</span>
+                        </span>
+                    </span>
+                    <span class="kcf-eq">
+                        <span class="kcf-slot">
+                            ${signTagHTML()}
+                            <span class="kcf-label">&nbsp;</span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+        `;
+
+        const show = id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('show');
+        };
+
+        // Original problem appears right away
+        kcfLater(() => show('kcfOriginal'), 60);
+
+        // Improper-fraction version appears just below it
+        let flipStart = 3000;
+        if (hasMixedNumbers) {
+            kcfLater(() => show('kcfImproper'), 900);
+            flipStart = 900 + 3000; // about three seconds after the improper line
+        }
+
+        // Keep, Change, Flip
+        kcfLater(() => {
+            show('kcfFlip');
+            kcfLater(() => show('kcfKeepLabel'), 500);
+        }, flipStart);
+
+        // Change: division sign becomes a multiplication sign
+        kcfLater(() => {
+            const op = document.getElementById('kcfOperator');
+            if (!op) return;
+            op.classList.add('op-swap');
+            op.style.color = 'var(--primary)';
+            kcfLater(() => { op.innerHTML = '×'; }, 300);
+            kcfLater(() => show('kcfChangeLabel'), 600);
+        }, flipStart + 1000);
+
+        // Flip: the second fraction turns over into its reciprocal
+        kcfLater(() => {
+            const second = document.getElementById('kcfSecond');
+            if (!second) return;
+            second.classList.add('flip-anim');
+            kcfLater(() => {
+                second.innerHTML = formatFractionHTML(p.flippedNum, p.flippedDen);
+            }, 350);
+            kcfLater(() => show('kcfFlipLabel'), 700);
+        }, flipStart + 2000);
+
+        // Move on to cross-simplifying
+        kcfLater(() => {
+            const fb = document.getElementById('feedback1');
+            fb.className = 'feedback correct';
+            fb.innerHTML = 'Rewritten as multiplication. Now cross-simplify.';
+            kcfLater(() => setStep(2), 1200);
+        }, flipStart + 3000);
+    }
+
+    function setupStep2() {
+        const p = currentProblem;
+        const container = document.getElementById('crossSimplifyVisualArea');
+        document.getElementById('feedback2').className = 'feedback';
+        document.getElementById('feedback2').innerHTML = '';
+
+        let topNum1HTML = `${p.absF1.num}`;
+        let botDen2HTML = `${p.flippedDen}`;
+        let topNum2HTML = `${p.flippedNum}`;
+        let botDen1HTML = `${p.absF1.den}`;
+
+        if (p.g1 > 1) {
+            topNum1HTML += `<input type="number" id="cross_box1" class="cross-input" style="top: -28px; left: -14px;" oninput="checkCrossPair('pair1')">`;
+            botDen2HTML += `<input type="number" id="cross_box2" class="cross-input" style="bottom: -28px; right: -28px;" oninput="checkCrossPair('pair1')">`;
+        }
+
+        if (p.g2 > 1) {
+            topNum2HTML += `<input type="number" id="cross_box3" class="cross-input" style="top: -28px; right: -14px;" oninput="checkCrossPair('pair2')">`;
+            botDen1HTML += `<input type="number" id="cross_box4" class="cross-input" style="bottom: -28px; left: -28px;" oninput="checkCrossPair('pair2')">`;
+        }
+
+        container.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+                <div class="fraction-display">
+                    <span class="numerator" id="topNum1">${topNum1HTML}</span>
+                    <span class="denominator" id="botDen1">${botDen1HTML}</span>
+                </div>
+                <span style="font-weight: bold;">×</span>
+                <div class="fraction-display">
+                    <span class="numerator" id="topNum2">${topNum2HTML}</span>
+                    <span class="denominator" id="botDen2">${botDen2HTML}</span>
+                </div>
+            </div>
+        `;
+
+        window._crossAnswers = {
+            1: p.redNum1,
+            2: p.redFlippedDen,
+            3: p.redFlippedNum,
+            4: p.redDen1
+        };
+
+        setTimeout(() => {
+            if (p.g1 > 1) {
+                document.getElementById('cross_box1').focus();
+            } else if (p.g2 > 1) {
+                document.getElementById('cross_box3').focus();
+            } else {
+                setStep(3);
+            }
+        }, 50);
+    }
+
+    function checkCrossPair(pairName) {
+        const p = currentProblem;
+        let pair1Done = true;
+        let pair2Done = true;
+
+        if (p.g1 > 1) {
+            const cb1 = document.getElementById('cross_box1');
+            const cb2 = document.getElementById('cross_box2');
+            
+            const val1 = parseInt(cb1.value);
+            if (cb1.value !== "" && !isNaN(val1) && val1 === window._crossAnswers[1] && document.activeElement === cb1) {
+                cb1.disabled = true;
+                cb1.style.backgroundColor = 'var(--sage-soft)';
+                cb2.focus();
+            }
+
+            if (cb1.value === "" || parseInt(cb1.value) !== window._crossAnswers[1] ||
+                cb2.value === "" || parseInt(cb2.value) !== window._crossAnswers[2]) {
+                pair1Done = false;
+            } else {
+                cb1.disabled = true;
+                cb2.disabled = true;
+                cb1.style.backgroundColor = 'var(--sage-soft)';
+                cb2.style.backgroundColor = 'var(--sage-soft)';
+            }
+        }
+
+        if (p.g2 > 1) {
+            const cb3 = document.getElementById('cross_box3');
+            const cb4 = document.getElementById('cross_box4');
+
+            const val3 = parseInt(cb3.value);
+            if (cb3.value !== "" && !isNaN(val3) && val3 === window._crossAnswers[3] && document.activeElement === cb3) {
+                cb3.disabled = true;
+                cb3.style.backgroundColor = 'var(--sage-soft)';
+                cb4.focus();
+            }
+
+            if (cb3.value === "" || parseInt(cb3.value) !== window._crossAnswers[3] ||
+                cb4.value === "" || parseInt(cb4.value) !== window._crossAnswers[4]) {
+                pair2Done = false;
+            } else {
+                cb3.disabled = true;
+                cb4.disabled = true;
+                cb3.style.backgroundColor = 'var(--sage-soft)';
+                cb4.style.backgroundColor = 'var(--sage-soft)';
+            }
+        }
+
+        if (p.g1 > 1 && p.g2 > 1 && pair1Done && !pair2Done) {
+            const cb3 = document.getElementById('cross_box3');
+            if (cb3 && !cb3.disabled && document.activeElement !== cb3) {
+                cb3.focus();
+            }
+        }
+
+        const fb = document.getElementById('feedback2');
+        if (pair1Done && pair2Done) {
+            fb.className = 'feedback correct';
+            fb.innerHTML = 'Cross-simplified. Now multiply across.';
+
+            setTimeout(() => {
+                setStep(3);
+            }, 600);
+        }
+    }
+
+    function setupStep3() {
+        const p = currentProblem;
+        document.getElementById('step3DisplayArea').innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+                ${formatFractionHTML(p.redNum1, p.redDen1)}
+                <span style="font-weight: bold; margin: 0 4px;">×</span>
+                ${formatFractionHTML(p.redFlippedNum, p.redFlippedDen)}
+            </div>
+        `;
+
+        const container = document.getElementById('multiplyContainer');
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; flex-wrap: wrap;">
+                <span style="font-weight: bold;">Product Fraction:</span>
+                ${formatFractionHTML('<input type="number" id="finalNumInput" class="std-input" placeholder="Num" style="width: 60px; border: none; background: transparent; font-size: 1.2rem;" oninput="checkStep3Auto()">', '<input type="number" id="finalDenInput" class="std-input" placeholder="Den" style="width: 60px; border: none; background: transparent; font-size: 1.2rem;" oninput="checkStep3Auto()">')}
+            </div>
+        `;
+
+        setTimeout(() => {
+            const fn = document.getElementById('finalNumInput');
+            if (fn) fn.focus();
+        }, 50);
+    }
+
+    function checkStep3Auto() {
+        const p = currentProblem;
+        const fn = document.getElementById('finalNumInput');
+        const fd = document.getElementById('finalDenInput');
+        const fb = document.getElementById('feedback3');
+
+        const userNum = parseInt(fn.value);
+        const userDen = parseInt(fd.value);
+        
+        const isExactMatch = (userNum === p.rawNum && userDen === p.rawDen);
+
+        if (fn.value !== "" && userNum === p.rawNum && document.activeElement === fn) {
+            fn.disabled = true;
+            fn.style.backgroundColor = 'var(--inset)';
+            fd.focus();
+        }
+
+        if (fn.value !== "" && fd.value !== "") {
+            if (isExactMatch) {
+                fb.className = 'feedback correct';
+                fn.disabled = true;
+                fd.disabled = true;
+                fn.style.backgroundColor = 'var(--inset)';
+                fd.style.backgroundColor = 'var(--inset)';
+                proceedFromStep3();
+            }
+        }
+    }
+
+    function proceedFromStep3() {
+        const fb = document.getElementById('feedback3');
+        const signPrefix = userChosenSign === 'positive' ? '+' : '−';
+        const p = currentProblem;
+        setTimeout(() => {
+            if (needsSimplification) {
+                fb.innerHTML = 'Correct. Now reduce to lowest terms.';
+                setStep(3.5);
+            } else if (needsMixedNumber) {
+                fb.innerHTML = 'Correct. Now write it as a mixed number.';
+                setStep(4);
+            } else {
+                let finalValStr = p.finalDen === 1 ? `${p.finalNum}` : `${p.finalNum}/${p.finalDen}`;
+                fb.innerHTML = `Final answer: ${signPrefix}${finalValStr}. Press Enter to continue.`;
+                enableCompletionEnter();
+            }
+        }, 500);
+    }
+
+    function setupStep3b() {
+        const p = currentProblem;
+        document.getElementById('step3bDisplayArea').innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+                ${formatFractionHTML(p.rawNum, p.rawDen)}
+            </div>
+        `;
+
+        const container = document.getElementById('simplifyContainer');
+        if (p.finalDen === 1) {
+            container.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; flex-wrap: wrap;">
+                    <span style="font-weight: bold;">Simplified Answer:</span>
+                    <input type="number" id="simpSingleInput" class="std-input" placeholder="Number" style="width: 100px; font-size: 1.2rem;" oninput="checkStep3bSingleAuto()">
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; flex-wrap: wrap;">
+                    <span style="font-weight: bold;">Simplified Fraction:</span>
+                    ${formatFractionHTML('<input type="number" id="simpNumInput" class="std-input" placeholder="Num" style="width: 60px; border: none; background: transparent; font-size: 1.2rem;" oninput="checkStep3bAuto()">', '<input type="number" id="simpDenInput" class="std-input" placeholder="Den" style="width: 60px; border: none; background: transparent; font-size: 1.2rem;" oninput="checkStep3bAuto()">')}
+                </div>
+            `;
+        }
+
+        setTimeout(() => {
+            const target = document.getElementById('simpSingleInput') || document.getElementById('simpNumInput');
+            if (target) target.focus();
+        }, 50);
+    }
+
+    function checkStep3bSingleAuto() {
+        const p = currentProblem;
+        const sInput = document.getElementById('simpSingleInput');
+        const fb = document.getElementById('feedback3b');
+
+        if (sInput.value !== "" && parseInt(sInput.value) === p.finalNum) {
+            fb.className = 'feedback correct';
+            sInput.disabled = true;
+            sInput.style.backgroundColor = 'var(--inset)';
+            proceedFromStep3b();
+        }
+    }
+
+    function checkStep3bAuto() {
+        const p = currentProblem;
+        const sn = document.getElementById('simpNumInput');
+        const sd = document.getElementById('simpDenInput');
+        const fb = document.getElementById('feedback3b');
+
+        const userNum = parseInt(sn.value);
+        const userDen = parseInt(sd.value);
+
+        const isExactMatch = (userNum === p.finalNum && userDen === p.finalDen);
+
+        if (sn.value !== "" && userNum === p.finalNum && document.activeElement === sn) {
+            sn.disabled = true;
+            sn.style.backgroundColor = 'var(--inset)';
+            sd.focus();
+        }
+
+        if (sn.value !== "" && sd.value !== "") {
+            if (isExactMatch) {
+                fb.className = 'feedback correct';
+                sn.disabled = true;
+                sd.disabled = true;
+                sn.style.backgroundColor = 'var(--inset)';
+                sd.style.backgroundColor = 'var(--inset)';
+                proceedFromStep3b();
+            }
+        }
+    }
+
+    function proceedFromStep3b() {
+        const fb = document.getElementById('feedback3b');
+        const signPrefix = userChosenSign === 'positive' ? '+' : '−';
+        const p = currentProblem;
+        setTimeout(() => {
+            if (needsMixedNumber) {
+                fb.innerHTML = 'Correct. Now write it as a mixed number.';
+                setStep(4);
+            } else {
+                let finalValStr = p.finalDen === 1 ? `${p.finalNum}` : `${p.finalNum}/${p.finalDen}`;
+                fb.innerHTML = `Final answer: ${signPrefix}${finalValStr}. Press Enter to continue.`;
+                enableCompletionEnter();
+            }
+        }, 500);
+    }
+
+    function setupStep4() {
+        const p = currentProblem;
+        document.getElementById('step4DisplayArea').innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+                ${formatFractionHTML(p.finalNum, p.finalDen)}
+            </div>
+        `;
+
+        const container = document.getElementById('mixedContainer');
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; flex-wrap: wrap;">
+                <span style="font-weight: bold;">Mixed Number:</span>
+                <input type="number" id="mixedWholeInput" class="std-input" placeholder="Whole" style="width: 60px; font-size: 1.1rem;" oninput="checkStep4Whole()">
+                ${formatFractionHTML('<input type="number" id="mixedNumInput" class="std-input" placeholder="Num" style="width: 50px; border: none; background: transparent; font-size: 1.1rem;" oninput="checkStep4Num()">', '<input type="number" id="mixedDenInput" value="' + p.mixedDen + '" readonly class="std-input" style="width: 50px; border: none; background: var(--inset); font-size: 1.1rem; text-align: center;">')}
+            </div>
+        `;
+
+        setTimeout(() => {
+            const mw = document.getElementById('mixedWholeInput');
+            if (mw) mw.focus();
+        }, 50);
+    }
+
+    function checkStep4Whole() {
+        const p = currentProblem;
+        const mw = document.getElementById('mixedWholeInput');
+        const mn = document.getElementById('mixedNumInput');
+        if (mw.value !== "" && parseInt(mw.value) === p.mixedWhole && document.activeElement === mw) {
+            mw.disabled = true;
+            mw.style.backgroundColor = 'var(--inset)';
+            mn.focus();
+        }
+    }
+
+    function checkStep4Num() {
+        const p = currentProblem;
+        const wholeVal = document.getElementById('mixedWholeInput').value;
+        const numVal = document.getElementById('mixedNumInput').value;
+        const fb = document.getElementById('feedback4');
+
+        if (wholeVal === "" || numVal === "") return;
+
+        const wVal = parseInt(wholeVal);
+        const nVal = parseInt(numVal);
+
+        if (wVal === p.mixedWhole && nVal === p.mixedNum) {
+            fb.className = 'feedback correct';
+            const signPrefix = userChosenSign === 'positive' ? '+' : '−';
+            fb.innerHTML = `Final answer: ${signPrefix} ${p.mixedWhole} ${p.mixedNum}/${p.mixedDen}. Press Enter to continue.`;
+            document.getElementById('mixedWholeInput').disabled = true;
+            document.getElementById('mixedNumInput').disabled = true;
+            document.getElementById('mixedWholeInput').style.backgroundColor = 'var(--inset)';
+            document.getElementById('mixedNumInput').style.backgroundColor = 'var(--inset)';
+
+            enableCompletionEnter();
+        }
+    }
+
+    function enableCompletionEnter() {
+        window.isProblemFinished = true;
+        document.addEventListener('keydown', handleCompletionEnter);
+    }
+
+    function handleCompletionEnter(e) {
+        if (e.key === 'Enter' && window.isProblemFinished) {
+            window.isProblemFinished = false;
+            document.removeEventListener('keydown', handleCompletionEnter);
+            advanceToNextProblem();
+        }
+    }
+
+    function advanceToNextProblem() {
+        currentProblemCount++;
+        initProblem();
+    }
+
+    window.onload = initProblem;
+</script>
+
+</body>
+</html>
