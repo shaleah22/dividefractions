@@ -1,1491 +1,2050 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fraction Path Drill - Division Edition</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            /* Slate & brass */
-            --ink: #0F131A;
-            --panel: #161C25;
-            --inset: #1C232E;
-            --line: #2C3542;
-            --paper: #F4F1EA;
-            --muted: #B4BDC9;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dividing Fractions</title>
+<style>
+    :root{
+        --paper:#fcfbf8;
+        --ink:#23272e;
+        --pencil:#1d4f91;
+        --tag:#b6b2a8;
+        --rule:#e7e4db;
+        --blank:#efece5;
+        --mark:#fbf0c4;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--paper);color:var(--ink)}
+    body{
+        font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+        -webkit-text-size-adjust:100%;
+    }
 
-            --accent: #8FBFB3;
-            --accent-strong: #AEDACD;
-            --accent-soft: rgba(127, 176, 165, 0.10);
+    .sheet{max-width:660px;margin:0 auto;padding:44px 24px 40px}
 
-            --gold: #D0AC68;
-            --gold-text: #EBD1A0;
-            --gold-soft: rgba(198, 161, 91, 0.09);
+    /* ---------- a line of work ---------- */
+    .line{
+        display:grid;grid-template-columns:70px 1fr;gap:16px;
+        padding:9px 0;opacity:0;transform:translateY(4px);
+        transition:opacity .25s ease,transform .25s ease;
+    }
+    .line.in{opacity:1;transform:none}
+    .tag{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+        color:var(--tag);text-align:right;padding-top:.85em;white-space:nowrap;
+    }
+    .expr{font-size:1.55rem;line-height:1.35;display:flex;align-items:center;flex-wrap:wrap}
+    .note{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.78rem;color:#9c988e;margin-top:7px;display:none;
+    }
+    .note.show{display:block}
+    .line.answer .body{border-top:1px solid var(--ink);padding-top:9px;margin-top:2px}
 
-            --sage: #A3D4B1;
-            --sage-soft: rgba(147, 196, 162, 0.12);
-            --rose: #E59A94;
-            --rose-soft: rgba(217, 140, 134, 0.12);
+    /* ---------- math ---------- */
+    .term{display:inline-flex;align-items:center;gap:6px}
+    .frac{display:inline-flex;flex-direction:column;text-align:center}
+    .frac-num{border-bottom:1.5px solid currentColor;padding:0 5px 2px;min-width:26px}
+    .frac-den{padding:2px 5px 0;min-width:26px}
+    .lit{background:var(--mark);border-radius:3px}
+    .whole{padding:0 2px}
+    .term.whole{padding:0}
+    .op{margin:0 9px}
+    .eq{margin:0 11px}
+    .lead{margin-right:5px}
 
-            /* Legacy aliases used inline throughout the drill */
-            --primary: var(--accent);
-            --primary-hover: var(--accent-strong);
-            --bg-color: var(--ink);
-            --card-bg: var(--panel);
-            --text-color: var(--paper);
-            --border-color: var(--line);
-            --error: var(--rose);
+    /* ---------- the conversion drawings ---------- */
+    .draw{display:block;width:196px;height:auto;margin:1px 0 3px -4px}
+    .draw.ring{width:132px}
+    .draw.dv{width:212px;margin:4px 0 2px -2px}
+    .eqline{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+        font-size:1.25rem;color:var(--ink);margin-top:1px}
 
-            --font-display: "Spectral", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-            --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+    /* ---------- cross cancelling ---------- */
+    .line.cancel .expr{padding:30px 0}
+    .cancel .frac-num,.cancel .frac-den{position:relative}
+    .dig{position:relative;display:inline-block;padding:0 1px}
+    .dig.struck{opacity:.42}
+    .dig.struck::after{
+        content:"";position:absolute;left:-3px;right:-3px;top:48%;
+        border-top:1.5px solid var(--pencil);transform:rotate(-18deg);
+    }
+    .over,.under{position:absolute;left:50%;transform:translateX(-50%)}
+    .over{bottom:calc(100% + 3px)}
+    .under{top:calc(100% + 3px)}
+    .cbox{
+        font-family:inherit;font-size:1.15rem;color:var(--pencil);text-align:center;
+        width:44px;padding:1px 0;background:var(--paper);
+        border:1.5px dashed #aab5c4;border-radius:5px;
+    }
+    .cbox:focus{outline:2px solid rgba(29,79,145,.35);outline-offset:1px}
+    .cbox:disabled{border-style:solid;border-color:var(--ink);color:var(--pencil);
+        -webkit-text-fill-color:var(--pencil);opacity:1}
 
-        body {
-            font-family: var(--font-ui);
-            background:
-                radial-gradient(1200px 600px at 50% -10%, #18202B 0%, transparent 60%),
-                var(--ink);
-            color: var(--paper);
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            max-height: 100vh;
-            overflow: hidden;
-            box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
-        }
+    /* ---------- blanks ---------- */
+    .blank{
+        font-family:inherit;font-size:1.35rem;color:var(--pencil);text-align:center;
+        background:var(--blank);border:none;border-radius:4px;padding:1px 2px;width:52px;
+    }
+    .blank:focus{outline:2px solid rgba(29,79,145,.35);outline-offset:1px}
+    .blank:disabled{background:transparent;color:var(--pencil);-webkit-text-fill-color:var(--pencil);opacity:1}
+    input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    input[type=number]{-moz-appearance:textfield}
 
-        .container {
-            background-color: var(--panel);
-            border-radius: 4px;
-            box-shadow: 0 30px 70px -40px rgba(0, 0, 0, 0.95);
-            width: 100%;
-            max-width: 660px;
-            padding: 18px 26px 20px;
-            max-height: calc(100vh - 20px);
-            overflow-y: auto;
-            box-sizing: border-box;
-            border: 1px solid var(--line);
-        }
+    /* ---------- long division ---------- */
+    .ldiv{display:inline-grid;grid-template-columns:auto auto;align-items:center;row-gap:1px}
+    .ldiv .q{grid-area:1/2;justify-self:stretch;text-align:center;padding-bottom:2px}
+    .ldiv .dr{grid-area:2/1;display:inline-flex;align-items:center;padding-right:1px}
+    .ldiv .dd{grid-area:2/2;justify-self:stretch;text-align:center;
+        border-top:1.5px solid currentColor;padding:3px 9px 0}
+    .ldiv .pr{grid-area:3/2;justify-self:stretch;text-align:center;
+        border-bottom:1.5px solid currentColor;padding:1px 9px 3px}
+    .ldiv .rm{grid-area:4/2;justify-self:stretch;text-align:center;padding-top:3px}
+    .brk{display:inline-block;transform:scaleY(1.8);transform-origin:center;margin-left:2px}
+    .work{
+        font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+        font-size:1.25rem;color:var(--ink);margin:7px 0 5px;
+    }
 
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 10px;
-            gap: 12px;
-        }
+    /* ---------- things you tap ---------- */
+    .tok{
+        display:inline-flex;align-items:center;cursor:pointer;
+        background:var(--mark);border-radius:6px;padding:2px 6px;
+    }
+    .tok:hover{background:#f6e59a}
+    .used{
+        display:inline-flex;align-items:center;
+        background:var(--mark);border-radius:6px;padding:2px 6px;
+    }
+    .swap{animation:swap .45s ease-in-out}
+    @keyframes swap{
+        0%{transform:scale(1) rotate(0)}
+        45%{transform:scale(.2) rotate(90deg);opacity:0}
+        55%{transform:scale(.2) rotate(90deg);opacity:0}
+        100%{transform:scale(1) rotate(0);opacity:1}
+    }
 
-        h2 {
-            margin: 0;
-            color: var(--paper);
-            font-family: var(--font-display);
-            font-size: 1.32rem;
-            font-weight: 600;
-            letter-spacing: 0.01em;
-        }
+    /* ---------- sign keys ---------- */
+    .sbtn{
+        font-family:inherit;font-size:1.4rem;color:var(--ink);
+        width:58px;height:46px;margin-right:10px;cursor:pointer;
+        background:#fff;border:1px solid var(--rule);border-radius:8px;
+    }
+    .sbtn:hover{border-color:#c9c4b8}
+    .sbtn.no{animation:shake .3s}
+    @keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 
-        .score-counter {
-            background: transparent;
-            color: var(--gold-text);
-            border: 1px solid var(--line);
-            padding: 4px 10px;
-            border-radius: 2px;
-            font-weight: 700;
-            font-size: 0.64rem;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
+    /* ---------- help that only shows up if it is asked for ---------- */
+    .help{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.72rem;color:#a8a49a;background:none;
+        border:1px solid var(--rule);border-radius:6px;
+        padding:3px 10px;margin-left:14px;cursor:pointer;align-self:center;
+    }
+    .help:hover{color:var(--ink);border-color:#cdc8bc}
+    .guide{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.8rem;color:#9c988e;margin-top:8px;line-height:1.7;
+    }
+    .guide b{color:var(--ink);background:var(--mark);border-radius:3px;padding:1px 4px}
+    .guide>.beat+.beat{margin-top:9px}
+    .guide .beat>div+div{margin-top:3px}
+    .rows{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.82rem;color:#9c988e;margin-top:9px;line-height:1.9;
+    }
+    .rows b{color:var(--ink);background:var(--mark);border-radius:3px;padding:1px 4px}
 
-        .progress-bar {
-            background-color: var(--line);
-            border-radius: 0;
-            height: 2px;
-            margin-bottom: 14px;
-            overflow: hidden;
-        }
+    /* ---------- the two conversion drawings, side by side ---------- */
+    .pair{display:flex;flex-wrap:wrap;gap:4px 20px;align-items:flex-start;margin-top:2px}
+    .pair>div{flex:0 0 auto}
+    .cap{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.72rem;color:#a8a49a;margin-bottom:1px;
+    }
 
-        .progress-fill {
-            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-text) 100%);
-            height: 100%;
-            width: 16.66%;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 0;
-        }
+    /* ---------- the ladder ----------
+       Only ever on the page because it was asked for, and only for a pair
+       big enough that naming the factor outright would not help.  Drawn the
+       same way as the ladder in the adding-and-subtracting drill: the divisor
+       out to the left, the two numbers inside an L, the quotients written
+       underneath, and the pair that is left lit up at the end. */
+    .ladwrap{margin-top:12px}
+    .ladtag{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+        color:var(--tag);margin-bottom:6px;
+    }
+    .lad{display:inline-block;font-size:1.2rem;line-height:1}
+    .lrow{display:flex;align-items:stretch}
+    /* every cell is a fixed width and no row is indented, so a number is always
+       written directly underneath the number it came from */
+    .lf{
+        flex:0 0 3rem;width:3rem;height:2.5rem;display:flex;align-items:center;
+        justify-content:flex-end;padding-right:9px;color:var(--pencil);
+    }
+    .lnums{
+        flex:0 0 auto;display:flex;align-items:center;padding-left:10px;
+        border-left:1.5px solid transparent;border-bottom:1.5px solid transparent;
+    }
+    .lnums.box{border-left-color:var(--ink);border-bottom-color:var(--ink)}
+    .lc{flex:0 0 2.6rem;width:2.6rem;height:2.5rem;display:flex;
+        align-items:center;justify-content:center;padding:0 3px}
+    .lgap{flex:0 0 1rem;width:1rem}
+    .lnum{padding:1px 5px;border-radius:3px}
+    /* what the two numbers came down to: the pair that goes in the boxes */
+    .lnum.hot{background:var(--mark)}
+    /* the 1 that closes the ladder is written where a divisor goes, but it is
+       not one of the numbers being used, so it is set quietly */
+    .lnum.one{color:var(--tag)}
+    .lbox{
+        font-family:inherit;font-size:1.05rem;color:var(--pencil);text-align:center;
+        width:2.2rem;padding:1px 0;background:var(--paper);
+        border:1.5px dashed #aab5c4;border-radius:5px;
+    }
+    .lbox:focus{outline:2px solid rgba(29,79,145,.35);outline-offset:1px}
+    .lbox:disabled{border:none;background:transparent;color:var(--pencil);
+        -webkit-text-fill-color:var(--pencil);opacity:1}
+    .ladnote{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.75rem;color:#9c988e;margin-top:11px;line-height:1.75;max-width:330px;
+    }
+    .ladnote b{color:var(--ink);background:var(--mark);border-radius:3px;padding:1px 4px}
+    .ladnote .gcf{margin-top:7px;color:#6f6b63}
 
-        .problem-box {
-            font-family: var(--font-display);
-            font-size: 1.45rem;
-            text-align: center;
-            margin-bottom: 14px;
-            background: var(--inset);
-            border: 1px solid var(--line);
-            padding: 12px 14px;
-            border-radius: 3px;
-            letter-spacing: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--paper);
-            font-weight: 600;
-            flex-wrap: wrap;
-        }
+    /* ---------- turning it in ----------
+       Same shape as the other drills in the study guide: the sheet steps
+       aside, the card takes the page, and one form goes up. */
+    .submit-card{
+        display:none;max-width:600px;margin:0 auto;padding:40px 26px 34px;
+    }
+    .submit-card.show{display:block}
+    body.oncard .tools{display:none}
+    .submit-card h2{
+        font-size:1.5rem;font-weight:normal;margin:0 0 5px;letter-spacing:.01em;
+    }
+    .sub-note{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.83rem;color:#9c988e;margin:0 0 20px;line-height:1.6;
+    }
+    .recap{
+        display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:9px;
+        margin-bottom:6px;
+    }
+    .recap>div{
+        border:1px solid var(--rule);border-radius:9px;padding:10px 12px;background:#fff;
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.63rem;letter-spacing:.09em;text-transform:uppercase;color:var(--tag);
+    }
+    .recap b{
+        display:block;font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+        font-size:1.55rem;font-weight:normal;color:var(--ink);letter-spacing:0;
+        text-transform:none;line-height:1.3;
+    }
+    .recap b.good{color:#3f7d55}
+    .log{
+        max-height:230px;overflow:auto;margin-top:17px;
+        border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:9px 0;
+    }
+    .logrow{display:flex;gap:11px;align-items:baseline;font-size:.98rem;padding:4px 2px;line-height:1.5}
+    .logn{color:var(--tag);min-width:24px;text-align:right;font-size:.82rem}
+    .logq{flex:1}
+    .logh{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.68rem;color:#b6b2a8;white-space:nowrap;
+    }
+    .logempty{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.82rem;color:#a8a49a;margin-top:15px;
+    }
+    #gform{margin-top:22px}
+    .name-warning{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.78rem;line-height:1.65;color:#6f6b63;
+        background:var(--mark);border-radius:8px;padding:11px 13px;margin-bottom:19px;
+    }
+    .name-warning b{color:var(--ink)}
+    .field{margin-bottom:15px}
+    .field label{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.8rem;color:#6f6b63;display:block;margin-bottom:6px;
+    }
+    .field label .step-num{
+        display:inline-flex;align-items:center;justify-content:center;
+        width:19px;height:19px;margin-right:8px;border-radius:50%;
+        background:var(--ink);color:var(--paper);font-size:.68rem;
+    }
+    .field label .big{
+        font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink);
+    }
+    .field label em{color:#a8a49a;font-style:normal;font-size:.74rem}
+    .field input{
+        font-family:inherit;font-size:1.02rem;color:var(--ink);width:100%;
+        background:#fff;border:1px solid var(--rule);border-radius:8px;padding:9px 11px;
+    }
+    .field input:focus{outline:2px solid rgba(29,79,145,.3);outline-offset:1px}
+    .name-check{
+        border:1px solid var(--rule);border-radius:9px;padding:11px 13px;
+        margin:4px 0 15px;background:#fdfdfb;
+    }
+    .name-check .checkhead{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.76rem;color:#9c988e;margin-bottom:9px;line-height:1.6;
+    }
+    .name-check .row{display:flex;gap:11px;align-items:baseline;margin-bottom:5px}
+    .name-check .row:last-child{margin-bottom:0;padding-top:6px;border-top:1px solid var(--rule)}
+    .name-check .tag{
+        text-align:left;padding-top:0;min-width:74px;font-size:.6rem;
+    }
+    .name-check .val{font-size:1.02rem;color:var(--ink)}
+    .name-check .val.empty{color:#c4c0b6}
+    .submit-btn{
+        font-family:inherit;font-size:1rem;color:var(--paper);background:var(--ink);
+        border:none;border-radius:8px;padding:11px 24px;cursor:pointer;
+    }
+    .submit-btn:hover{filter:brightness(1.15)}
+    #formFeedback{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.85rem;margin-top:14px;
+    }
+    .after-submit{
+        margin-top:22px;padding-top:17px;border-top:1px solid var(--rule);
+        display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    }
+    .after-submit .lab{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.72rem;color:#9c988e;margin-right:3px;
+    }
+    .ghost-btn{
+        font-family:inherit;font-size:.92rem;color:var(--ink);background:none;
+        border:1px solid var(--rule);border-radius:8px;padding:8px 15px;cursor:pointer;
+    }
+    .ghost-btn:hover{border-color:#c9c4b8}
+    .ghost-btn.mute{opacity:.32;pointer-events:none}
+    .resend{color:#6f6b63}
+    @media (max-width:600px){
+        .submit-card{padding:28px 16px 30px}
+    }
 
-        .step-container {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
+    /* ---------- footer ---------- */
+    .next{
+        font-family:inherit;font-size:1rem;color:var(--paper);background:var(--ink);
+        border:none;border-radius:8px;padding:9px 22px;cursor:pointer;
+    }
+    /* ---------- the keys, up in the corner ---------- */
+    /* above the panel, so turning in never takes the controls away */
+    .tools{
+        position:fixed;top:12px;left:14px;z-index:70;
+        display:flex;gap:15px;align-items:center;flex-wrap:wrap;
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+    }
+    .grp{display:flex;gap:6px;align-items:center}
+    .tbtn{
+        font:inherit;font-size:.78rem;font-weight:600;letter-spacing:.03em;
+        min-width:31px;height:28px;padding:0 7px;
+        color:#b0aca2;background:var(--paper);
+        border:1px solid var(--rule);border-radius:7px;cursor:pointer;
+    }
+    .tbtn:hover{color:var(--ink);border-color:#cdc8bc}
+    .tbtn.on{color:var(--paper);background:var(--ink);border-color:var(--ink)}
+    .tbtn.mute{opacity:.32;pointer-events:none}
+    /* where you are in the set of ten, said plainly so nobody has to guess
+       why the skip and turn-in keys are not answering */
+    .roundtag{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+        color:var(--tag);margin-right:10px;white-space:nowrap;
+    }
+    .roundtag.done{color:#3f7d55}
 
-        .step-container.active {
-            display: block;
-        }
+    /* the sheet, and the panel beside it, grow and shrink together */
+    .sheet,.wp{zoom:var(--z,1)}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    /* ---------- the word problem, off in the right margin ----------
+       Columns 1 and 3 are both 1fr, so the sheet stays dead centre whether
+       the panel is showing or not: toggling it never shifts the maths. */
+    .page{display:grid;grid-template-columns:1fr minmax(0,660px) 1fr;align-items:start}
+    .main{grid-column:2;grid-row:1;min-width:0}
+    .wp{
+        grid-column:3;grid-row:1;align-self:start;
+        position:sticky;top:0;max-width:330px;
+        padding:46px 24px 26px 22px;
+    }
+    .rail{border-left:1px solid var(--rule);padding-left:22px}
+    .wphead{display:flex;align-items:baseline;gap:12px;margin-bottom:11px}
+    .wptag{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tag);
+    }
+    .wpx{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+        color:#c9c5ba;background:none;border:none;padding:0;margin-left:auto;cursor:pointer;
+    }
+    .wpx:hover{color:var(--ink)}
+    .wpstory,.wpask{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.86rem;line-height:1.95;color:#6f6b63;
+    }
+    .wpask{color:var(--ink);margin-top:11px}
+    .wpnote{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.72rem;color:#a8a49a;margin-top:13px;line-height:1.65;
+    }
+    .wpclose{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.84rem;line-height:1.9;color:#6f6b63;
+        margin-top:15px;padding-top:13px;border-top:1px solid var(--rule);
+    }
+    /* the division stacked up, the way the book prints it */
+    .wpcf{
+        display:flex;align-items:center;gap:9px;
+        margin:6px 0 2px;padding-left:2px;
+    }
+    .cf{
+        display:inline-flex;flex-direction:column;text-align:center;
+        font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+        font-size:1.15rem;color:var(--ink);
+    }
+    .cf-t{border-bottom:1.5px solid currentColor;padding:0 7px 3px}
+    .cf-b{padding:4px 7px 0}
+    .wpu{
+        font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+        font-size:.8rem;color:#6f6b63;
+    }
+    /* a number lifted out of the maths and dropped into the sentence */
+    .wnum{
+        font-family:Georgia,"Iowan Old Style","Times New Roman",serif;font-size:1.04em;
+        background:var(--mark);border-radius:3px;padding:1px 4px;white-space:nowrap;
+    }
+    .wf sup,.wf sub{font-size:.72em;line-height:0}
 
-        .step-title {
-            font-family: var(--font-display);
-            font-weight: 600;
-            font-size: 1.02rem;
-            margin-bottom: 9px;
-            color: var(--paper);
-            border-left: 2px solid var(--gold);
-            padding-left: 12px;
-            letter-spacing: 0.01em;
-        }
+    /* not enough margin left: the panel goes above the sheet instead */
+    @media (max-width:1179px){
+        .page{display:block;padding-top:46px}
+        .wp{position:static;max-width:660px;margin:0 auto;padding:34px 24px 0}
+        .rail{border-left:none;padding-left:0;padding-bottom:20px;border-bottom:1px solid var(--rule)}
+        .wphead{margin-bottom:9px}
+    }
 
-        .clean-area {
-            background-color: var(--inset);
-            padding: 12px 10px;
-            border-radius: 3px;
-            border: 1px solid var(--line);
-            margin-bottom: 10px;
-            font-family: var(--font-display);
-        }
-
-        .fraction-row-layout {
-            font-family: var(--font-display);
-            font-size: 1.45rem;
-            font-weight: 600;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--paper);
-            margin-bottom: 20px;
-        }
-
-        .fraction-display {
-            font-weight: 600;
-            display: inline-flex;
-            flex-direction: column;
-            vertical-align: middle;
-            text-align: center;
-            margin: 0 4px;
-            position: relative;
-            font-family: var(--font-display);
-        }
-
-        .mixed-display {
-            display: inline-flex;
-            align-items: center;
-            vertical-align: middle;
-            margin: 0 6px;
-        }
-
-        .mixed-whole {
-            font-size: 1em;
-            font-weight: 600;
-            margin-right: 5px;
-        }
-
-        .numerator {
-            border-bottom: 2px solid var(--paper);
-            padding: 0 5px 2px 5px;
-            min-width: 25px;
-            display: inline-block;
-            position: relative;
-        }
-
-        .denominator {
-            padding: 2px 5px 0 5px;
-            min-width: 25px;
-            display: inline-block;
-            position: relative;
-        }
-
-        .cross-input {
-            position: absolute;
-            background: var(--panel);
-            border: 1px solid var(--gold);
-            color: var(--gold-text);
-            font-family: var(--font-ui);
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-align: center;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            z-index: 5;
-        }
-
-        .cross-input:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px var(--gold-soft);
-        }
-
-        .cross-input:disabled {
-            border-color: var(--sage);
-            color: var(--sage);
-        }
-
-        .fill-in-blank {
-            border: none;
-            background: transparent;
-            font-family: var(--font-display);
-            font-size: inherit;
-            color: var(--accent-strong);
-            caret-color: var(--gold);
-            text-align: center;
-            width: 40px;
-            padding: 0;
-            margin: 0 2px;
-            font-weight: 700;
-        }
-
-        .fill-in-blank:focus {
-            outline: none;
-        }
-
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        .standard-input-group {
-            margin-bottom: 8px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            background: var(--inset);
-            border: 1px solid var(--line);
-            padding: 10px 14px;
-            border-radius: 3px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        input.std-input {
-            padding: 6px 8px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            border: 1px solid var(--line);
-            background: var(--panel);
-            color: var(--paper);
-            border-radius: 3px;
-            width: 100px;
-            text-align: center;
-            font-family: var(--font-display);
-        }
-
-        input.std-input:focus {
-            outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px var(--gold-soft);
-        }
-
-        input:disabled {
-            opacity: 1;
-            color: var(--accent-strong);
-        }
-
-        .feedback {
-            margin-top: 10px;
-            padding: 9px 12px;
-            border-radius: 3px;
-            font-weight: 600;
-            display: none;
-            font-size: 0.84rem;
-            letter-spacing: 0.01em;
-        }
-
-        .feedback.correct {
-            background-color: var(--sage-soft);
-            color: var(--sage);
-            border: 1px solid rgba(147, 196, 162, 0.3);
-            display: block;
-        }
-
-        .feedback.incorrect {
-            background-color: var(--rose-soft);
-            color: var(--rose);
-            border: 1px solid rgba(217, 140, 134, 0.3);
-            display: block;
-        }
-
-        .tip-banner {
-            background-color: var(--gold-soft);
-            border-left: 2px solid var(--gold);
-            color: var(--gold-text);
-            padding: 9px 12px;
-            margin-bottom: 9px;
-            border-radius: 0 3px 3px 0;
-            font-size: 0.79rem;
-            font-weight: 500;
-            line-height: 1.45;
-        }
-
-        .tip-banner strong {
-            font-weight: 700;
-            color: #F5E3BE;
-        }
-
-        .sign-picker-btn {
-            background-color: transparent;
-            color: var(--paper);
-            border: 1px solid var(--line);
-            padding: 9px 24px;
-            font-family: var(--font-display);
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 3px;
-            cursor: pointer;
-            margin: 5px;
-            transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .sign-picker-btn:hover,
-        .sign-picker-btn:focus-visible {
-            background-color: var(--gold-soft);
-            border-color: var(--gold);
-            color: var(--gold-text);
-            outline: none;
-        }
-
-        p {
-            margin-top: 0;
-            margin-bottom: 8px;
-            font-size: 0.83rem;
-            font-weight: 500;
-            color: var(--muted);
-            line-height: 1.45;
-        }
-
-        /* --- Keep, Change, Flip walkthrough --- */
-        .kcf-stack {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            font-family: var(--font-display);
-        }
-
-        .kcf-line {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0;
-            font-size: 1.45rem;
-            font-weight: 600;
-            color: var(--paper);
-            padding: 5px 0;
-            opacity: 0;
-            transform: translateY(-6px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .kcf-line.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .kcf-line.kcf-result {
-            border-top: 1px solid var(--line);
-            margin-top: 4px;
-            padding-top: 12px;
-            width: 100%;
-        }
-
-        /* Fixed-width columns keep every line stacked in the same vertical lanes */
-        .kcf-signslot {
-            flex: 0 0 20px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
-        .kcf-cell {
-            flex: 0 0 auto;
-            min-width: 118px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .kcf-op {
-            flex: 0 0 46px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--accent-strong);
-        }
-
-        .kcf-eq {
-            flex: 0 0 74px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        @media (max-height: 700px) {
-            .problem-box { font-size: 1.28rem; padding: 9px 12px; margin-bottom: 10px; }
-            .kcf-line { font-size: 1.28rem; padding: 3px 0; }
-            .tip-banner { font-size: 0.75rem; padding: 7px 11px; margin-bottom: 7px; }
-            .clean-area { padding: 9px 8px; }
-            h2 { font-size: 1.18rem; }
-            .step-title { font-size: 0.95rem; margin-bottom: 7px; }
-            p { font-size: 0.78rem; margin-bottom: 6px; }
-        }
-
-        @media (max-width: 540px) {
-            .container { padding: 24px 18px 26px; }
-            .kcf-line { font-size: 1.35rem; }
-            .kcf-cell { min-width: 84px; }
-            .kcf-op { flex: 0 0 32px; }
-            .kcf-eq { flex: 0 0 54px; }
-            .kcf-signslot { flex: 0 0 16px; }
-        }
-
-        .kcf-slot {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-
-        .kcf-label {
-            font-family: var(--font-ui);
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--gold-text);
-            margin-top: 5px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        .kcf-label.show {
-            opacity: 1;
-        }
-
-        .kcf-sign {
-            font-size: 1.35rem;
-            font-weight: 700;
-        }
-
-        .flip-anim {
-            animation: flipY 0.7s ease-in-out;
-        }
-
-        @keyframes flipY {
-            0%   { transform: rotateX(0deg); }
-            50%  { transform: rotateX(90deg); }
-            100% { transform: rotateX(0deg); }
-        }
-
-        .op-swap {
-            animation: opSwap 0.6s ease-in-out;
-        }
-
-        @keyframes opSwap {
-            0%   { transform: scale(1) rotate(0deg); opacity: 1; }
-            45%  { transform: scale(0.3) rotate(90deg); opacity: 0; }
-            55%  { transform: scale(0.3) rotate(90deg); opacity: 0; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .kcf-line, .flip-anim, .op-swap, .kcf-label, .step-container {
-                animation: none !important;
-                transition: none !important;
-            }
-        }
-    </style>
+    @media (max-width:600px){
+        .sheet{padding:26px 16px 30px}
+        .line{grid-template-columns:52px 1fr;gap:10px}
+        .expr{font-size:1.3rem}
+        .blank{font-size:1.15rem;width:44px}
+        .cbox{font-size:1rem;width:36px}
+        .lad{font-size:1.05rem}
+        .lf{flex:0 0 2.4rem;width:2.4rem}
+        .lc{flex:0 0 2.2rem;width:2.2rem}
+    }
+    @media (prefers-reduced-motion:reduce){
+        .line{transition:none;opacity:1;transform:none}
+        .sbtn.no,.swap{animation:none}
+    }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-top">
-        <h2>Fraction Division Drill</h2>
-        <div class="score-counter" id="scoreCounter">Problem: 1</div>
+<div class="tools">
+    <div class="grp">
+        <button class="tbtn" type="button" id="zOut" title="smaller" aria-label="smaller">A&minus;</button>
+        <button class="tbtn" type="button" id="zIn" title="bigger" aria-label="bigger">A+</button>
     </div>
-    
-    <div class="progress-bar">
-        <div class="progress-fill" id="progressFill" style="width: 16.66%;"></div>
+    <div class="grp">
+        <button class="tbtn" type="button" data-kind="fractions" title="fractions" aria-label="fractions">F</button>
+        <button class="tbtn" type="button" data-kind="mixed" title="mixed numbers" aria-label="mixed numbers">MN</button>
+        <button class="tbtn on" type="button" data-kind="both" title="both" aria-label="both">B</button>
     </div>
+    <div class="grp">
+        <button class="tbtn on" type="button" id="wpBtn" title="word problem" aria-label="word problem">WP</button>
+        <button class="tbtn" type="button" id="skip" title="skip" aria-label="skip">S</button>
+    </div>
+    <div class="grp">
+        <span class="roundtag" id="roundTag"></span>
+        <button class="tbtn" type="button" id="submitEarlyBtn"
+                title="turn in what you have so far" aria-label="submit progress">turn in</button>
+    </div>
+</div>
 
-    <div class="problem-box" id="problemDisplay"></div>
+<div class="page" id="drillMain">
+    <aside class="wp" id="wp"></aside>
+    <div class="main">
+        <div class="sheet" id="sheet"></div>
+    </div>
+</div>
 
-    <!-- STEP 0: Sign Determination -->
-    <div class="step-container" id="step0">
-        <div class="step-title">Step 1: Determine the Final Sign</div>
-        <div class="tip-banner">
-            <strong>Rule:</strong> Same signs make a positive answer; different signs make a negative answer!
+<div class="submit-card" id="submitCard">
+    <h2 id="submitTitle">Results</h2>
+    <p class="sub-note" id="submitNote">Enter your period and name to submit.</p>
+
+    <div class="recap" id="recap"></div>
+    <div id="workLog"></div>
+
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"
+            onload="if(window.onHiddenFrameLoad)onHiddenFrameLoad()"></iframe>
+
+    <form action="https://docs.google.com/forms/d/e/1FAIpQLSe4_Gnrq1zyrttA3lSgrVBtMkaVaoMim31ByzoH-orxmfDB2A/formResponse"
+          method="POST" target="hidden_iframe" id="gform">
+        <div class="name-warning">
+            Read the box labels before you type. Your <b>LAST name</b> goes in the
+            <b>Last name</b> box and your <b>FIRST name</b> goes in the <b>First name</b> box.
+            Swapped names cannot be matched to the roster and count as missing.
         </div>
-        <p style="color: var(--muted); text-align: center;">Will the final answer be positive or negative?</p>
-        <div style="text-align: center; margin-bottom: 15px;">
-            <button class="sign-picker-btn" onclick="selectSign('positive')">Positive (+)</button>
-            <button class="sign-picker-btn" onclick="selectSign('negative')">Negative (−)</button>
+        <div class="field">
+            <label for="studentPeriod"><span class="step-num">1</span><span class="big">Period</span></label>
+            <input type="number" id="studentPeriod" placeholder="e.g. 3" min="1" max="10" required>
         </div>
-        <div class="feedback" id="feedback0"></div>
-    </div>
-
-    <!-- STEP 1: Convert Mixed Numbers to Improper Fractions -->
-    <div class="step-container" id="stepMinus1">
-        <div class="step-title">Step 2: Convert Mixed Numbers to Improper Fractions</div>
-        <div class="tip-banner">
-            <strong>Rule:</strong> Since we have determined the sign, convert any mixed numbers into improper fractions using positive values. Keep signs outside!
+        <div class="field">
+            <label for="lastName"><span class="step-num">2</span><span class="big">LAST name</span>
+                &nbsp;<em>&mdash; your family name, the one the roster is alphabetized by</em></label>
+            <input type="text" id="lastName" placeholder="Rodriguez" autocomplete="family-name" required>
         </div>
-        <p style="color: var(--muted);" id="mixedConversionPromptText">Convert the mixed numbers into improper fractions:</p>
-        
-        <div class="clean-area" id="mixedConversionArea"></div>
-        <div class="feedback" id="feedbackMinus1"></div>
-    </div>
-
-    <!-- STEP 2: Reciprocal Setup (Keep-Change-Flip) -->
-    <div class="step-container" id="step1">
-        <div class="step-title">Step 3: Keep, Change, Flip (Reciprocal)</div>
-        <div class="tip-banner">
-            <strong>Rule:</strong> <strong>Keep</strong> the first fraction (already converted to improper if it was a mixed number), <strong>change</strong> division to multiplication, and <strong>flip</strong> the second fraction to its reciprocal using positive values.
+        <div class="field">
+            <label for="firstName"><span class="step-num">3</span><span class="big">FIRST name</span>
+                &nbsp;<em>&mdash; the name your teacher calls you by</em></label>
+            <input type="text" id="firstName" placeholder="Maria" autocomplete="given-name" required>
         </div>
-        <p style="color: var(--muted);">Watch the problem get rewritten as multiplication:</p>
-        
-        <div class="clean-area" id="reciprocalVisualArea"></div>
-        <div class="feedback" id="feedback1"></div>
+        <div class="name-check" id="nameCheck"></div>
+        <input type="hidden" id="studentName" name="entry.1899284808" value="">
+        <input type="hidden" id="formScore" name="entry.1974610095" value="">
+        <button type="submit" class="submit-btn">Submit Results</button>
+    </form>
+
+    <div id="formFeedback"></div>
+    <div class="after-submit">
+        <span class="lab">keep practicing:</span>
+        <button class="ghost-btn" type="button" data-go="fractions">fractions</button>
+        <button class="ghost-btn" type="button" data-go="mixed">mixed numbers</button>
+        <button class="ghost-btn" type="button" data-go="both">both</button>
+        <button class="ghost-btn" type="button" id="keepBtn">back to this one</button>
     </div>
-
-    <!-- STEP 3: Cross Simplify -->
-    <div class="step-container" id="step2">
-        <div class="step-title">Step 4: Cross Simplify</div>
-        <div class="tip-banner">
-            <strong>Cross-Canceling:</strong> Work with positive numbers only to reduce diagonally across the multiplication sign!
-        </div>
-        <p style="color: var(--muted);">Enter the simplified numbers diagonally:</p>
-        
-        <div class="clean-area" id="crossSimplifyVisualArea" style="text-align: center; font-size: 1.45rem; color: var(--paper); padding: 14px;"></div>
-        <div class="feedback" id="feedback2"></div>
-    </div>
-
-    <!-- STEP 4: Multiply Across -->
-    <div class="step-container" id="step3">
-        <div class="step-title">Step 5: Multiply Numerators and Denominators</div>
-        <div class="tip-banner">
-            <strong>Note:</strong> Multiply straight across using your positive numbers.
-        </div>
-        <p style="color: var(--muted);">Multiply straight across using your simplified numbers:</p>
-        
-        <div class="clean-area" id="step3DisplayArea" style="text-align: center; font-size: 1.45rem; color: var(--paper);"></div>
-
-        <div class="standard-input-group" id="multiplyContainer"></div>
-        <div class="feedback" id="feedback3"></div>
-    </div>
-
-    <!-- STEP 4.5: Simplify Improper/Raw Product -->
-    <div class="step-container" id="step3b">
-        <div class="step-title">Step 5.5: Simplify the Fraction</div>
-        <div class="tip-banner">
-            <strong>Simplify:</strong> Reduce your positive fraction to lowest terms! If the denominator is 1, simplify it to just the top number.
-        </div>
-        <p style="color: var(--muted);">Your product is not in simplest form. Enter the fully simplified fraction:</p>
-        
-        <div class="clean-area" id="step3bDisplayArea" style="text-align: center; font-size: 1.45rem; color: var(--paper);"></div>
-
-        <div class="standard-input-group" id="simplifyContainer"></div>
-        <div class="feedback" id="feedback3b"></div>
-    </div>
-
-    <!-- STEP 5: Mixed Number Conversion -->
-    <div class="step-container" id="step4">
-        <div class="step-title">Step 6: Convert to a Mixed Number</div>
-        <div class="tip-banner">
-            <strong>Note:</strong> Convert the positive improper fraction into a mixed number.
-        </div>
-        <p style="color: var(--muted);">Your product is improper. Convert it into a mixed number:</p>
-        
-        <div class="clean-area" id="step4DisplayArea" style="text-align: center; font-size: 1.45rem; color: var(--paper);"></div>
-
-        <div class="standard-input-group" id="mixedContainer"></div>
-        <div class="feedback" id="feedback4"></div>
-    </div>
-
 </div>
 
 <script>
-    let currentProblemCount = 1;
-    let currentStep = 0;
-    let currentProblem = {};
-    let needsSimplification = false;
-    let needsMixedNumber = false;
-    let userChosenSign = '';
-    let hasMixedNumbers = false;
+/* ============================ helpers ============================ */
+const MINUS="\u2212", TIMES="\u00D7", DIV="\u00F7";
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);return b===0?a:gcd(b,a%b);}
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
 
-    function gcd(a, b) {
-        a = Math.abs(a);
-        b = Math.abs(b);
-        return b === 0 ? a : gcd(b, a % b);
+function fracHTML(n,d){
+    return '<span class="frac"><span class="frac-num">'+n+'</span><span class="frac-den">'+d+'</span></span>';
+}
+function termHTML(w,n,d){
+    let h='<span class="term">';
+    if(w!==null&&w!=="") h+='<span class="whole">'+w+'</span>';
+    return h+fracHTML(n,d)+'</span>';
+}
+function opHTML(c){return '<span class="op">'+c+'</span>';}
+function eqHTML(){return '<span class="eq">=</span>';}
+
+/* ============================ problem generation ============================ */
+/* The problem is built backwards from the answer.  After the flip the work is
+   A/B x C/D, so we choose the two cancelling factors g1 and g2 first, then the
+   four numbers left standing afterwards.  Those four ARE the answer, which is
+   how the answers stay varied instead of always collapsing to something over 2. */
+const GFACTORS=[1,2,2,2,3,3,3,4,4,5,5,6,6,7,8,9,10,12];
+
+let kind="both", problemCount=1, P={}, seq=[], seqIdx=0, finished=false;
+
+/* ---------- what gets turned in ----------
+   Nothing here is graded on the spot; it is a record of what was worked
+   through, so the sheet can be handed in half-finished and still count. */
+const session={start:Date.now(),name:"",period:"",records:[],turnedIn:0};
+let stat={hints:0,helps:0};
+/* the shapes of the last few answers, so the next one can be something else */
+let recentKeys=[];
+
+/* one candidate: null whenever it breaks a rule, so the caller just tries again.
+   Each one carries the shape of its own answer, so the caller can pick for
+   variety instead of taking whatever falls out first. */
+function candidate(mixed1,mixed2){
+    const g1=pick(GFACTORS), g2=pick(GFACTORS);
+    if(g1===1&&g2===1) return null;              /* nothing to cancel */
+
+    /* what is left after cancelling: a/b x c/d, already the answer */
+    const a=randInt(1,13), b=randInt(1,13), c=randInt(1,13), d=randInt(1,13);
+    if(gcd(a,d)!==1||gcd(c,b)!==1) return null;  /* or g1,g2 would not be the whole factor */
+
+    /* ---- the multiplying has to be worth doing ----
+       Cancelling used to be allowed to strip a problem right back to
+       something like 1/2 x 1/1, and then the two lines after it are not
+       practice at anything.  At most one of the four numbers left standing
+       may be a 1, and the two products both have to be numbers you would
+       actually have to work out. */
+    const ones=(a===1)+(b===1)+(c===1)+(d===1);
+    if(ones>1) return null;
+    if(a*c<6||b*d<6) return null;
+
+    const A=a*g1, B=b*g2, C=c*g2, D=d*g1;
+    if(B<2||C<2) return null;                    /* a denominator of 1 is not a fraction */
+    if(gcd(A,B)!==1||gcd(C,D)!==1) return null;  /* both terms must start in lowest terms */
+    if(A>90||B>45||C>90||D>90) return null;
+
+    const num=a*c, den=b*d;
+    if(num>110||den>60||num===den) return null;
+
+    /* the finished answer, and how many wholes it comes to */
+    const g0=gcd(num,den), sn=num/g0, sd=den/g0;
+    const q=(sd>1&&sn>sd)?Math.floor(sn/sd):0;
+    if(q>12) return null;                        /* no runaway answers */
+
+    /* first term is A/B, second is D/C: proper fractions, or improper if mixed */
+    if(mixed1){ if(A<=B||A%B===0||A/B>6) return null; } else if(A>=B) return null;
+    if(mixed2){ if(D<=C||D%C===0||D/C>6) return null; } else if(D>=C) return null;
+
+    return {A:A,B:B,C:C,D:D,key:q?String(q):(sd===1?"int":"prop")};
+}
+
+function generateProblem(){
+    let mixed1,mixed2;
+    if(kind==="fractions"){mixed1=false;mixed2=false;}
+    else{
+        /* a proper fraction over a mixed number can only ever answer to less than
+           one whole, so that pairing is used more sparingly */
+        const combo=kind==="mixed"?pick([[1,0],[1,0],[0,1],[1,1],[1,1]])
+                                  :pick([[0,0],[0,0],[1,0],[0,1],[1,1],[1,1]]);
+        mixed1=!!combo[0];mixed2=!!combo[1];
     }
 
-    function generateProblem() {
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+    /* gather a handful, then take one whose answer is not the shape of the last
+       few, so the whole numbers do not sit on 1 problem after problem */
+    function gather(m1,m2){
+        const pool=[];
+        for(let i=0;i<20000&&pool.length<40;i++){
+            const c=candidate(m1,m2);
+            if(c) pool.push(c);
         }
-
-        const rawPool = [
-            {n1: 2, d1: 3, n2: 4, d2: 9},
-            {n1: 3, d1: 5, n2: 6, d2: 25},
-            {n1: 3, d1: 4, n2: 9, d2: 16},
-            {n1: 2, d1: 7, n2: 4, d2: 21},
-            {n1: 4, d1: 5, n2: 8, d2: 15},
-            {n1: 3, d1: 10, n2: 9, d2: 20},
-            {n1: 5, d1: 6, n2: 25, d2: 12},
-            {n1: 3, d1: 8, n2: 9, d2: 16},
-            {n1: 3, d1: 5, n2: 12, d2: 25},
-            {n1: 4, d1: 9, n2: 8, d2: 27},
-            {n1: 5, d1: 7, n2: 15, d2: 14},
-            {n1: 2, d1: 9, n2: 8, d2: 45},
-            {n1: 7, d1: 8, n2: 21, d2: 16},
-            {n1: 3, d1: 11, n2: 9, d2: 22},
-            {n1: 4, d1: 7, n2: 12, d2: 35}
-        ];
-
-        // Numerators that are less than the denominator AND already in lowest terms
-        function pickSimplifiedNumerator(den) {
-            const options = [];
-            for (let n = 1; n < den; n++) {
-                if (gcd(n, den) === 1) options.push(n);
-            }
-            return options[Math.floor(Math.random() * options.length)];
-        }
-
-        let basePair;
-        let isMixed1, isMixed2, d1, d2, n1_val, n2_val;
-        let formatType;
-
-        // Keep generating until we find a pair where, if mixed, the fraction part is proper AND fully simplified
-        do {
-            basePair = rawPool[Math.floor(Math.random() * rawPool.length)];
-            formatType = getRandomInt(0, 3);
-
-            isMixed1 = (formatType === 1 || formatType === 3);
-            isMixed2 = (formatType === 2 || formatType === 3);
-
-            d1 = basePair.d1;
-            d2 = basePair.d2;
-
-            // Fraction part of a mixed number must be proper and in simplest form (no 3 6/9)
-            n1_val = isMixed1 ? pickSimplifiedNumerator(d1) : basePair.n1;
-            n2_val = isMixed2 ? pickSimplifiedNumerator(d2) : basePair.n2;
-
-        } while ((isMixed1 && (n1_val >= d1 || gcd(n1_val, d1) !== 1)) ||
-                 (isMixed2 && (n2_val >= d2 || gcd(n2_val, d2) !== 1)));
-
-        let w1 = isMixed1 ? getRandomInt(1, 3) : 0;
-        let w2 = isMixed2 ? getRandomInt(1, 3) : 0;
-
-        const chosen = {isMixed1, w1, n1: n1_val, d1, isMixed2, w2, n2: n2_val, d2};
-        
-        hasMixedNumbers = chosen.isMixed1 || chosen.isMixed2;
-
-        let rawN1 = chosen.isMixed1 ? (chosen.w1 * chosen.d1 + chosen.n1) : chosen.n1;
-        let d1_val = chosen.d1;
-        let rawN2 = chosen.isMixed2 ? (chosen.w2 * chosen.d2 + chosen.n2) : chosen.n2;
-        let d2_val = chosen.d2;
-
-        let num1 = rawN1;
-        let den1 = d1_val;
-        let num2 = rawN2;
-        let den2 = d2_val;
-
-        const signPattern = Math.random();
-        if (signPattern < 0.5) {
-            if (Math.random() < 0.5) num1 *= -1;
-            else num2 *= -1;
-        } else {
-            num1 *= -1;
-            num2 *= -1;
-        }
-
-        const exactVal = (num1 / den1) / (num2 / den2);
-        const correctSign = exactVal >= 0 ? 'positive' : 'negative';
-
-        let absNum1 = Math.abs(num1);
-        let absDen1 = Math.abs(den1);
-        let absNum2 = Math.abs(num2);
-        let absDen2 = Math.abs(den2);
-
-        let flippedNum = absDen2;
-        let flippedDen = absNum2;
-
-        let g1 = gcd(absNum1, flippedDen);
-        let g2 = gcd(flippedNum, absDen1);
-
-        let redNum1 = absNum1 / g1;
-        let redFlippedDen = flippedDen / g1;
-        let redFlippedNum = flippedNum / g2;
-        let redDen1 = absDen1 / g2;
-
-        const rawFinalNum = redNum1 * redFlippedNum;
-        const rawFinalDen = redDen1 * redFlippedDen;
-
-        let finalGcd = gcd(rawFinalNum, rawFinalDen);
-        let fullySimplifiedNum = rawFinalNum / finalGcd;
-        let fullySimplifiedDen = rawFinalDen / finalGcd;
-
-        needsSimplification = (finalGcd > 1 || fullySimplifiedDen === 1);
-        needsMixedNumber = (fullySimplifiedDen > 1 && fullySimplifiedNum > fullySimplifiedDen);
-
-        currentProblem = {
-            isMixed1: chosen.isMixed1,
-            w1: chosen.w1,
-            n1: chosen.n1,
-            d1: chosen.d1,
-            isMixed2: chosen.isMixed2,
-            w2: chosen.w2,
-            n2: chosen.n2,
-            d2: chosen.d2,
-            f1: {num: num1, den: den1},
-            f2: {num: num2, den: den2},
-            correctSign: correctSign,
-            absF1: {num: absNum1, den: absDen1},
-            absF2: {num: absNum2, den: absDen2},
-            flippedNum: flippedNum,
-            flippedDen: flippedDen,
-            g1: g1,
-            g2: g2,
-            redNum1: redNum1,
-            redDen1: redDen1,
-            redFlippedNum: redFlippedNum,
-            redFlippedDen: redFlippedDen,
-            rawNum: rawFinalNum,
-            rawDen: rawFinalDen,
-            finalNum: fullySimplifiedNum,
-            finalDen: fullySimplifiedDen,
-            mixedWhole: Math.trunc(fullySimplifiedNum / fullySimplifiedDen),
-            mixedNum: fullySimplifiedNum % fullySimplifiedDen,
-            mixedDen: fullySimplifiedDen
-        };
+        return pool;
     }
+    let pool=gather(mixed1,mixed2);
+    if(!pool.length){ mixed1=false;mixed2=false;pool=gather(false,false); }
+    const fresh=pool.filter(function(c){return recentKeys.indexOf(c.key)<0;});
+    const t=pick(fresh.length?fresh:pool);
+    recentKeys.push(t.key);
+    if(recentKeys.length>5) recentKeys.shift();
 
-    function initProblem() {
-        clearKcfTimers();
-        generateProblem();
-        userChosenSign = '';
-        
-        document.getElementById('scoreCounter').innerText = `Problem: ${currentProblemCount}`;
-        document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
-        
-        document.querySelectorAll('.feedback').forEach(el => {
-            el.className = 'feedback';
-            el.innerHTML = '';
+    const num1=t.A, den1=t.B, num2=t.D, den2=t.C;
+
+    /* one negative, or both */
+    let s1=1,s2=1;
+    if(Math.random()<0.5){ if(Math.random()<0.5) s1=-1; else s2=-1; }
+    else { s1=-1;s2=-1; }
+
+    return buildP(num1,den1,num2,den2,mixed1,mixed2,s1,s2);
+}
+
+/* everything the steps need, worked out from one pair of operands.  The
+   generator feeds it random numbers; a word problem feeds it its own. */
+function buildP(num1,den1,num2,den2,isMixed1,isMixed2,s1,s2){
+    const w1=isMixed1?Math.floor(num1/den1):0;
+    const n1=isMixed1?num1%den1:num1;
+    const w2=isMixed2?Math.floor(num2/den2):0;
+    const n2=isMixed2?num2%den2:num2;
+    const neg=(s1*s2)<0;
+
+    const flipNum=den2, flipDen=num2;
+    const g1=gcd(num1,flipDen), g2=gcd(flipNum,den1);
+    const redNum1=num1/g1, redFlipDen=flipDen/g1;
+    const redFlipNum=flipNum/g2, redDen1=den1/g2;
+
+    const rawNum=redNum1*redFlipNum, rawDen=redDen1*redFlipDen;
+    const g=gcd(rawNum,rawDen);
+    const simpNum=rawNum/g, simpDen=rawDen/g;
+
+    return {
+        isMixed1:isMixed1,w1:w1,n1:n1,d1:den1,s1:s1,
+        isMixed2:isMixed2,w2:w2,n2:n2,d2:den2,s2:s2,
+        hasMixed:isMixed1||isMixed2,neg:neg,
+        num1:num1,den1:den1,num2:num2,den2:den2,
+        flipNum:flipNum,flipDen:flipDen,
+        g1:g1,g2:g2,
+        redNum1:redNum1,redDen1:redDen1,redFlipNum:redFlipNum,redFlipDen:redFlipDen,
+        rawNum:rawNum,rawDen:rawDen,g:g,
+        simpNum:simpNum,simpDen:simpDen,
+        needsSimplify:(g>1||simpDen===1),
+        needsRegroup:(simpDen>1&&simpNum>simpDen),
+        whole:Math.trunc(simpNum/simpDen),rem:simpNum%simpDen
+    };
+}
+
+/* ============================ the word problems ============================
+   These are the nine problems as written, and each one carries its own pair
+   of operands: the story sets the numbers, not the other way round.  A
+   randomly generated problem has no story, and then the panel simply is not
+   there.  Decimals are written as the exact fraction the sheet can work in,
+   so 64.5 appears as 64 1/2 and the sentence still says what it said.
+
+   x is the first operand, y the second.  m:1 means write it as a mixed
+   number.  In the text, {A} and {B} are the operands with their signs, {a}
+   and {b} are the same numbers without one, and {ans} is the answer. */
+const STORIES=[
+ {x:{s:-1,n:129,d:2,m:1}, y:{s:1,n:15,d:2,m:1},
+  s:"During {b} months of hibernation, a black bear lost {a} pounds.",
+  q:"On average, what was the bear's weight change per month?",
+  c:"The bear's weight changed {ans} pounds per month."},
+
+ {x:{s:-1,n:15,d:2,m:1}, y:{s:1,n:6,d:5,m:1},
+  s:"The outside temperature decreases by {a}\u00B0F in {b} hours.",
+  q:"What was the average change in temperature, in degrees Fahrenheit, each hour?",
+  c:"The temperature changed {ans}\u00B0F each hour."},
+
+ {x:{s:1,n:3,d:4,m:0}, y:{s:1,n:1,d:8,m:0},
+  s:"Alexander reads {b} of a book each night.",
+  q:"How long will it take him to read {a} of the book?",
+  c:"It will take him {ans} nights."},
+
+ {x:{s:1,n:35,d:8,m:1}, y:{s:1,n:5,d:1,m:0},
+  s:"Ashley divided a {a} pound bag of apples among her five friends.",
+  q:"How many pounds of apples did each friend receive?",
+  c:"Each friend received {ans} pound of apples."},
+
+ {x:{s:-1,n:54,d:1,m:0}, y:{s:1,n:45,d:2,m:1},
+  s:"The temperature of a cup of coffee changed by {A}\u00B0F over {b} minutes.",
+  q:"What was the change in temperature each minute?",
+  c:"The temperature changed {ans}\u00B0F each minute."},
+
+ {x:{s:1,n:91,d:2,m:1}, y:{s:1,n:13,d:2,m:1},
+  s:"Regina spent ${a} over {b} months on music downloads. She spent the same amount of money each month.",
+  q:"How much money, in dollars, did Regina spend per month on music downloads?",
+  c:"Regina spent ${ans} per month."},
+
+ {x:{s:1,n:35,d:1,m:0}, y:{s:1,n:25,d:2,m:1},
+  s:"A tanker truck fills the gas station's reservoir at the rate of {b} gallons per minute. The reservoir was empty and it is now {a} gallons full.",
+  q:"How many minutes has the tanker been filling the reservoir?",
+  c:"The tanker has been filling for {ans} minutes."},
+
+ {x:{s:-1,n:3,d:2,m:1}, y:{s:1,n:5,d:3,m:1},
+  s:"The water level of a lake fell by {a} inches during a {b}-week-long dry spell. Divide the complex fraction below to find the average rate at which the water level changed every week.",
+  q:"", u:"inches/week",
+  c:"The water level changed {ans} inches every week."},
+
+ {x:{s:-1,n:13,d:16,m:0}, y:{s:1,n:39,d:4,m:1},
+  s:"Between 10 P.M. and 7:45 A.M. \u2014 that is {b} hours \u2014 the water level in a swimming pool decreased by {a} inch.",
+  q:"Assuming that the water level decreased at a constant rate, how much did it drop each hour?",
+  c:"The water level decreased by {ans} inch each hour."}
+];
+
+/* ============================ the set of ten ============================
+   Everybody works the same ten, in the same order.  Nothing here is drawn at
+   random and nothing can be skipped past, so the sheet that gets handed in is
+   the same sheet for the whole class and the numbers mean the same thing from
+   one student to the next.
+
+   Dividing fractions itself is old news by now; the sign is the new part, so
+   nine of the ten carry a negative and they are deliberately not all the same
+   shape.  Two of them are negative divided by negative, which comes out
+   positive \u2014 those are there so that nobody can pass by writing a minus in
+   front of every answer.  The stories keep their positive quantities, because
+   a bag of apples cannot weigh less than nothing.
+
+    1  \u2212\u00BE \u00F7 \u2154            F  \u00F7 F      \u2212 \u00F7 +   = \u22121\u215B
+    2  \u22122\u2153 \u00F7 \u215A            MN \u00F7 F      \u2212 \u00F7 +   = \u22122\u2158
+    3  \u2212\u215A \u00F7 \u2212\u2079\u2081\u2080          F  \u00F7 F      \u2212 \u00F7 \u2212   = \u00B2\u2075\u2044\u2082\u2087
+    4  story                 F  \u00F7 F      + \u00F7 +   = 6
+    5  8 \u00F7 \u2212\u2154            W  \u00F7 F      + \u00F7 \u2212   = \u221212
+    6  \u215D \u00F7 \u22121\u00BC            F  \u00F7 MN     + \u00F7 \u2212   = \u2212\u00BD
+    7  story, negative       MN \u00F7 MN     \u2212 \u00F7 +   = \u22128\u2158
+    8  \u22123\u2153 \u00F7 \u22121\u2159          MN \u00F7 MN     \u2212 \u00F7 \u2212   = 3
+    9  \u2212\u2158 \u00F7 3             F  \u00F7 W      \u2212 \u00F7 +   = \u2212\u2074\u2044\u2081\u2085
+   10  story, negative       MN \u00F7 MN     \u2212 \u00F7 +   = \u22126\u00BC
+
+   A story in the list is the story object itself, so it arrives with its own
+   numbers and its own panel exactly as it does in practice. */
+const ROUND=[
+    {x:{s:-1,n:3, d:4, m:0}, y:{s: 1,n:2, d:3, m:0}},
+    {x:{s:-1,n:7, d:3, m:1}, y:{s: 1,n:5, d:6, m:0}},
+    {x:{s:-1,n:5, d:6, m:0}, y:{s:-1,n:9, d:10,m:0}},
+    STORIES[2],                                        /* Alexander's book */
+    {x:{s: 1,n:8, d:1, m:0}, y:{s:-1,n:2, d:3, m:0}},
+    {x:{s: 1,n:5, d:8, m:0}, y:{s:-1,n:5, d:4, m:1}},
+    STORIES[0],                                        /* the hibernating bear */
+    {x:{s:-1,n:10,d:3, m:1}, y:{s:-1,n:10,d:9, m:1}},
+    {x:{s:-1,n:4, d:5, m:0}, y:{s: 1,n:3, d:1, m:0}},
+    STORIES[1]                                         /* the falling temperature */
+];
+/* which one is next, or null once the set is behind them */
+function roundItem(){
+    if(endless) return null;
+    return ROUND[session.records.length]||null;
+}
+/* True until the student has been through the card at the end of the set and
+   chosen to carry on.  It stays true through the tenth answer itself, so that
+   finishing the last problem cannot quietly reopen the skip key a moment
+   before the form appears. */
+function inRound(){return !endless;}
+/* the set itself, worked through or not */
+function roundLeft(){return Math.max(0,TARGET-session.records.length);}
+
+const wpEl=document.getElementById("wp"), wpBtn=document.getElementById("wpBtn");
+let wpOn=true, wpT=null, wpDone=false, wpQueue=[];
+
+/* a fraction small enough to sit inside a sentence */
+function wf(n,d){return '<span class="wf"><sup>'+n+'</sup>&frasl;<sub>'+d+'</sub></span>';}
+
+/* operand i, written the way the sheet writes it */
+function wpNum(i,signed){
+    const m=i===1?P.isMixed1:P.isMixed2;
+    const w=i===1?P.w1:P.w2, n=i===1?P.n1:P.n2, d=i===1?P.d1:P.d2;
+    const sg=(signed&&(i===1?P.s1:P.s2)<0)?MINUS:"";
+    if(d===1&&!m) return sg+n;                     /* a whole number stays whole */
+    return sg+(m?w+"&thinsp;":"")+wf(n,d);
+}
+function wpVal(i,signed){return '<span class="wnum">'+wpNum(i,signed)+'</span>';}
+
+/* the division stacked up, for the one that asks for a complex fraction */
+function wpComplex(){
+    return '<span class="cf"><span class="cf-t">'+wpNum(1,true)+'</span>'+
+           '<span class="cf-b">'+wpNum(2,true)+'</span></span>';
+}
+function wpAnswer(){
+    const m=P.neg?MINUS:"";
+    let body;
+    if(P.needsRegroup) body=P.whole+"&thinsp;"+wf(P.rem,P.simpDen);
+    else if(P.simpDen===1) body=String(P.simpNum);
+    else body=wf(P.simpNum,P.simpDen);
+    return '<span class="wnum">'+m+body+'</span>';
+}
+
+/* which stories the current setting allows, shuffled, none repeating until
+   they have all been round once */
+function wpFits(t){
+    if(kind==="fractions") return !t.x.m&&!t.y.m;
+    if(kind==="mixed") return !!(t.x.m||t.y.m);
+    return true;
+}
+function wpDraw(){
+    const fits=STORIES.filter(wpFits);
+    if(!fits.length) return null;
+    wpQueue=wpQueue.filter(function(t){return fits.indexOf(t)>=0;});
+    if(!wpQueue.length){
+        wpQueue=fits.slice();
+        for(let i=wpQueue.length-1;i>0;i--){
+            const j=Math.floor(Math.random()*(i+1));
+            const s=wpQueue[i];wpQueue[i]=wpQueue[j];wpQueue[j]=s;
+        }
+        /* the deck is dealt off the end, so the three stories that were already
+           in the set of ten go to the front and come round last: practice opens
+           with something they have not just finished reading */
+        wpQueue.sort(function(a,b){
+            return (ROUND.indexOf(b)>=0)-(ROUND.indexOf(a)>=0);
         });
-
-        currentStep = 0;
-        document.getElementById('step0').classList.add('active');
-        
-        updateProgressBar();
-        updateProblemDisplay();
     }
+    return wpQueue.pop();
+}
 
-    function getTotalSteps() {
-        let total = hasMixedNumbers ? 6 : 5; 
-        if (!needsSimplification) total--;
-        if (!needsMixedNumber) total--;
-        return total;
-    }
+function wpSet(t){
+    wpT=t;wpDone=false;
+    if(t) wpRender();
+    wpApply();
+}
+function wpFill(s){
+    return s.replace(/\{A\}/g,wpVal(1,true)).replace(/\{B\}/g,wpVal(2,true))
+            .replace(/\{a\}/g,wpVal(1,false)).replace(/\{b\}/g,wpVal(2,false))
+            .replace(/\{ans\}/g,wpAnswer());
+}
+function wpRender(){
+    if(!wpT) return;
+    let h='<div class="rail"><div class="wphead">'+
+          '<span class="wptag">word problem</span>'+
+          '<button class="wpx" type="button" id="wpHide">hide</button></div>'+
+          '<div class="wpstory">'+wpFill(wpT.s)+'</div>';
+    if(wpT.q) h+='<div class="wpask">'+wpFill(wpT.q)+'</div>';
+    if(wpT.u)
+        h+='<div class="wpcf">'+wpComplex()+'<span class="wpu">'+wpT.u+'</span></div>';
+    if(wpDone) h+='<div class="wpclose">'+wpFill(wpT.c)+'</div>';
+    wpEl.innerHTML=h+'</div>';
+    document.getElementById("wpHide").onclick=function(){wpOn=false;wpApply();};
+}
+function wpApply(){
+    wpEl.style.display=(wpT&&wpOn)?"":"none";
+    wpBtn.classList.toggle("on",!!wpT&&wpOn);
+    wpBtn.classList.toggle("mute",!wpT);   /* nothing to show, nothing to toggle */
+}
+wpBtn.onclick=function(){wpOn=!wpOn;wpApply();};
 
-    function updateProgressBar() {
-        const totalSteps = getTotalSteps();
-        let activeIndex = currentStep === -1 ? 2 : (currentStep === 0 ? 1 : currentStep + (hasMixedNumbers ? 2 : 1));
-        if (currentStep === 3.5) {
-            activeIndex = totalSteps - (needsMixedNumber ? 1 : 0); 
-        }
-        const fillPercent = (Math.min(activeIndex, totalSteps) / totalSteps) * 100;
-        document.getElementById('progressFill').style.width = `${fillPercent}%`;
-    }
+/* ============================ the sheet ============================ */
+const sheet=document.getElementById("sheet");
+function addLine(tag,html,cls){
+    const d=document.createElement("div");
+    d.className="line"+(cls?" "+cls:"");
+    d.innerHTML='<span class="tag">'+(tag||"")+'</span>'+
+                '<div class="body"><div class="expr">'+html+'</div><div class="note"></div></div>';
+    sheet.appendChild(d);
+    requestAnimationFrame(function(){d.classList.add("in");});
+    later(function(){d.scrollIntoView({block:"nearest",behavior:"smooth"});},60);
+    return d;
+}
 
-    function formatFractionHTML(num, den) {
-        return `<div class="fraction-display">
-                    <span class="numerator">${num}</span>
-                    <span class="denominator">${den}</span>
-                </div>`;
-    }
+/* ---------- timing guard: stale callbacks never touch a new problem ---------- */
+let epoch=0;
+function later(fn,ms){const e=epoch;setTimeout(function(){if(e===epoch)fn();},ms);}
+const CALM=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    function formatDisplayItem(f, isMixed, w, n, d, isNegative) {
-        const signPrefix = isNegative ? '−' : '';
-        if (isMixed) {
-            return `<div class="mixed-display">
-                        <span class="mixed-whole">${signPrefix}${w}</span>
-                        ${formatFractionHTML(n, d)}
-                    </div>`;
-        } else {
-            return `<span>${signPrefix}${formatFractionHTML(n, d)}</span>`;
-        }
-    }
+/* ---------- hints ---------- */
+let hintTimer=null,hintIdx=0,hintEl=null;
+function resetHints(){clearTimeout(hintTimer);hintIdx=0;}
+function clearHint(){
+    clearTimeout(hintTimer);
+    if(hintEl){hintEl.textContent="";hintEl.classList.remove("show");}
+}
+function armHint(line,hints){
+    clearTimeout(hintTimer);
+    if(!hints||hintIdx>=hints.length) return;
+    const e=epoch;
+    hintTimer=setTimeout(function(){
+        if(e!==epoch) return;
+        hintEl=line.querySelector(".note");
+        hintEl.innerHTML=hints[hintIdx].t;
+        hintEl.classList.add("show");
+        hintIdx++;stat.hints++;
+    },2200);
+}
 
-    function updateProblemDisplay(appendedSignHTML = '') {
-        const p = currentProblem;
-        const item1HTML = formatDisplayItem(p.f1, p.isMixed1, p.w1, p.n1, p.d1, p.f1.num < 0);
-        const item2HTML = formatDisplayItem(p.f2, p.isMixed2, p.w2, p.n2, p.d2, p.f2.num < 0);
+/* some things are worth saying straight away rather than after a wait */
+function showNote(line,txt){
+    const n=line.querySelector(".note");
+    n.innerHTML=txt;n.classList.add("show");hintEl=n;
+}
 
-        document.getElementById('problemDisplay').innerHTML = `
-            ${item1HTML} 
-            <span style="margin: 0 8px;">÷</span> 
-            ${item2HTML}
-            ${appendedSignHTML}
-        `;
-    }
+/* ---------- blanks ---------- */
+let boxId=0;
+function blank(w){return '<input type="text" inputmode="numeric" autocomplete="off" id="k'+(++boxId)+'" class="blank"'+(w?' style="width:'+w+'px"':"")+' disabled>';}
+function cbox(){return '<input type="text" inputmode="numeric" autocomplete="off" id="k'+(++boxId)+'" class="cbox" disabled>';}
+function lastId(){return "k"+boxId;}
 
-    function selectSign(chosen) {
-        userChosenSign = chosen;
-        const fb = document.getElementById('feedback0');
-        if (chosen === currentProblem.correctSign) {
-            fb.className = 'feedback correct';
-            fb.innerHTML = `The final answer will be ${chosen}.`;
-            
-            const signSymbol = chosen === 'positive' ? '+' : '−';
-            const signDisplayHTML = `<span style="margin-left: 12px; font-size: 1.7rem; font-weight: bold; color: ${chosen === 'positive' ? 'var(--sage)' : 'var(--rose)'};">= ${signSymbol}</span>`;
-            updateProblemDisplay(signDisplayHTML);
+function val(el){
+    const raw=el.value.replace(/[^0-9]/g,"");
+    if(el.value!==raw) el.value=raw;
+    return /^\d+$/.test(raw)?parseInt(raw,10):null;
+}
 
-            setTimeout(() => {
-                if (hasMixedNumbers) {
-                    setStep(-1);
-                } else {
-                    setStep(1);
-                }
-            }, 700);
-        } else {
-            fb.className = 'feedback incorrect';
-            fb.innerHTML = `Not quite. Compare the two signs again.`;
-        }
-    }
-
-    function setupMixedConversionStep() {
-        const p = currentProblem;
-        const container = document.getElementById('mixedConversionArea');
-        document.getElementById('feedbackMinus1').className = 'feedback';
-        document.getElementById('feedbackMinus1').innerHTML = '';
-
-        let html = '<div style="display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap;">';
-
-        if (p.isMixed1) {
-            html += `<div style="display: flex; align-items: center; gap: 8px;">
-                <div class="mixed-display">
-                    <span class="mixed-whole">${p.w1}</span>
-                    ${formatFractionHTML(p.n1, p.d1)}
-                </div>
-                <span style="font-size: 1.5rem; font-weight: bold;">=</span>
-                ${formatFractionHTML('<input type="number" id="conv_n1" class="fill-in-blank" oninput="checkMixedConversion()">', '<input type="number" id="conv_d1" class="fill-in-blank" value="' + p.absF1.den + '" readonly style="background:var(--inset);">')}
-            </div>`;
-        }
-        if (p.isMixed2) {
-            html += `<div style="display: flex; align-items: center; gap: 8px;">
-                <div class="mixed-display">
-                    <span class="mixed-whole">${p.w2}</span>
-                    ${formatFractionHTML(p.n2, p.d2)}
-                </div>
-                <span style="font-size: 1.5rem; font-weight: bold;">=</span>
-                ${formatFractionHTML('<input type="number" id="conv_n2" class="fill-in-blank" oninput="checkMixedConversion()">', '<input type="number" id="conv_d2" class="fill-in-blank" value="' + p.absF2.den + '" readonly style="background:var(--inset);">')}
-            </div>`;
-        }
-        html += '</div>';
-
-        container.innerHTML = html;
-
-        setTimeout(() => {
-            const firstInput = document.getElementById('conv_n1') || document.getElementById('conv_n2');
-            if (firstInput) firstInput.focus();
-        }, 50);
-    }
-
-    function checkMixedConversion() {
-        const p = currentProblem;
-        
-        let n1Input = document.getElementById('conv_n1');
-        let n2Input = document.getElementById('conv_n2');
-
-        if (n1Input && n1Input.value !== "" && parseInt(n1Input.value) === p.absF1.num && !n1Input.disabled) {
-            n1Input.disabled = true;
-            n1Input.style.color = 'var(--primary)';
-            if (n2Input && !n2Input.disabled) {
-                n2Input.focus();
+function runBoxes(line,specs,done){
+    resetHints();
+    function open(i){if(specs[i].show) specs[i].show();}
+    specs.forEach(function(s,i){
+        const el=document.getElementById(s.id);
+        el.disabled=i!==0;
+        el.oninput=function(){
+            if(val(el)!==s.ans){
+                if(el.value!=="") armHint(line,s.hints);
+                return;
             }
-        }
-
-        let allCorrect = true;
-        if (p.isMixed1) {
-            if (!n1Input || parseInt(n1Input.value) !== p.absF1.num) allCorrect = false;
-        }
-        if (p.isMixed2) {
-            if (!n2Input || parseInt(n2Input.value) !== p.absF2.num) allCorrect = false;
-        }
-
-        const fb = document.getElementById('feedbackMinus1');
-        if (allCorrect) {
-            fb.className = 'feedback correct';
-            fb.innerHTML = 'Converted. Every number is now an improper fraction.';
-            setTimeout(() => {
-                setStep(1);
-            }, 600);
-        }
-    }
-
-    function setStep(step) {
-        currentStep = step;
-        document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
-        
-        let targetId = `step${step}`;
-        if (step === -1) targetId = 'stepMinus1';
-        if (step === 3.5) targetId = 'step3b';
-        document.getElementById(targetId).classList.add('active');
-        
-        updateProgressBar();
-
-        if (step === -1) {
-            setupMixedConversionStep();
-        } else if (step === 1) {
-            setupStep1();
-        } else if (step === 2) {
-            setupStep2();
-        } else if (step === 3) {
-            setupStep3();
-        } else if (step === 3.5) {
-            setupStep3b();
-        } else if (step === 4) {
-            setupStep4();
-        }
-    }
-
-    let kcfTimers = [];
-
-    function clearKcfTimers() {
-        kcfTimers.forEach(t => clearTimeout(t));
-        kcfTimers = [];
-    }
-
-    function kcfLater(fn, delay) {
-        kcfTimers.push(setTimeout(fn, delay));
-    }
-
-    function signTagHTML() {
-        const isPositive = (userChosenSign || currentProblem.correctSign) === 'positive';
-        const symbol = isPositive ? '+' : '−';
-        const color = isPositive ? 'var(--sage)' : 'var(--rose)';
-        return `<span class="kcf-sign" style="color: ${color};">= ${symbol}</span>`;
-    }
-
-    // One operand rendered as: its own sign lane, then a fixed-width lane for the number
-    function kcfOperandHTML(isMixed, w, n, d, isNegative, id) {
-        const body = isMixed
-            ? `<div class="mixed-display"><span class="mixed-whole">${w}</span>${formatFractionHTML(n, d)}</div>`
-            : formatFractionHTML(n, d);
-        const inner = id ? `<div id="${id}">${body}</div>` : body;
-        return `<span class="kcf-signslot">${isNegative ? '−' : ''}</span><span class="kcf-cell">${inner}</span>`;
-    }
-
-    function setupStep1() {
-        const p = currentProblem;
-        const container = document.getElementById('reciprocalVisualArea');
-        document.getElementById('feedback1').className = 'feedback';
-        document.getElementById('feedback1').innerHTML = '';
-        clearKcfTimers();
-
-        // Line 1: the original problem, exactly as it was given
-        const orig1 = kcfOperandHTML(p.isMixed1, p.w1, p.n1, p.d1, p.f1.num < 0);
-        const orig2 = kcfOperandHTML(p.isMixed2, p.w2, p.n2, p.d2, p.f2.num < 0);
-
-        // Line 2: same problem with every mixed number written as an improper fraction
-        const imp1 = kcfOperandHTML(false, 0, p.absF1.num, p.absF1.den, p.f1.num < 0);
-        const imp2 = kcfOperandHTML(false, 0, p.absF2.num, p.absF2.den, p.f2.num < 0);
-
-        const improperLine = hasMixedNumbers ? `
-            <div class="kcf-line" id="kcfImproper">
-                ${imp1}
-                <span class="kcf-op">÷</span>
-                ${imp2}
-                <span class="kcf-eq">${signTagHTML()}</span>
-            </div>
-        ` : '';
-
-        container.innerHTML = `
-            <div class="kcf-stack">
-                <div class="kcf-line" id="kcfOriginal">
-                    ${orig1}
-                    <span class="kcf-op">÷</span>
-                    ${orig2}
-                    <span class="kcf-eq">${signTagHTML()}</span>
-                </div>
-
-                ${improperLine}
-
-                <div class="kcf-line kcf-result" id="kcfFlip">
-                    <span class="kcf-signslot"></span>
-                    <span class="kcf-cell">
-                        <span class="kcf-slot">
-                            <span id="kcfKeep">${formatFractionHTML(p.absF1.num, p.absF1.den)}</span>
-                            <span class="kcf-label" id="kcfKeepLabel">Keep</span>
-                        </span>
-                    </span>
-                    <span class="kcf-op">
-                        <span class="kcf-slot">
-                            <span id="kcfOperator" style="display: inline-block;">÷</span>
-                            <span class="kcf-label" id="kcfChangeLabel">Change</span>
-                        </span>
-                    </span>
-                    <span class="kcf-signslot"></span>
-                    <span class="kcf-cell">
-                        <span class="kcf-slot">
-                            <span id="kcfSecond">${formatFractionHTML(p.absF2.num, p.absF2.den)}</span>
-                            <span class="kcf-label" id="kcfFlipLabel">Flip</span>
-                        </span>
-                    </span>
-                    <span class="kcf-eq">
-                        <span class="kcf-slot">
-                            ${signTagHTML()}
-                            <span class="kcf-label">&nbsp;</span>
-                        </span>
-                    </span>
-                </div>
-            </div>
-        `;
-
-        const show = id => {
-            const el = document.getElementById(id);
-            if (el) el.classList.add('show');
+            clearHint();resetHints();
+            el.disabled=true;
+            if(s.ok) s.ok();
+            if(i+1<specs.length){
+                const n=document.getElementById(specs[i+1].id);
+                n.disabled=false;n.focus();open(i+1);
+            }else{
+                later(done,260);
+            }
         };
+    });
+    later(function(){const f=document.getElementById(specs[0].id);if(f)f.focus();},60);
+    open(0);
+}
 
-        // Original problem appears right away
-        kcfLater(() => show('kcfOriginal'), 60);
+/* highlight whichever numbers are being worked with */
+function litOnly(line,ids){
+    line.querySelectorAll(".lit").forEach(function(e){e.classList.remove("lit");});
+    (ids||[]).forEach(function(id){
+        const e=document.getElementById(id);
+        if(e) e.classList.add("lit");
+    });
+}
 
-        // Improper-fraction version appears just below it
-        let flipStart = 3000;
-        if (hasMixedNumbers) {
-            kcfLater(() => show('kcfImproper'), 900);
-            flipStart = 900 + 3000; // about three seconds after the improper line
+/* a button that stays quiet until it is asked, then gives one beat per tap */
+function helpButton(line,beats){
+    const btn=document.createElement("button");
+    btn.type="button";btn.className="help";btn.textContent="show me how";
+    btn.onmousedown=function(e){e.preventDefault();};
+    let i=0,box=null;
+    btn.onclick=function(){
+        if(!box){
+            box=document.createElement("div");box.className="guide";
+            line.querySelector(".body").appendChild(box);
         }
+        stat.helps++;
+        box.insertAdjacentHTML("beforeend",'<div class="beat">'+beats[i++]+'</div>');
+        btn.textContent="next";
+        if(i>=beats.length) btn.remove();
+        const open=[].slice.call(line.querySelectorAll("input")).filter(function(x){return !x.disabled;})[0];
+        if(open) open.focus();
+    };
+    line.querySelector(".expr").appendChild(btn);
+}
 
-        // Keep, Change, Flip
-        kcfLater(() => {
-            show('kcfFlip');
-            kcfLater(() => show('kcfKeepLabel'), 500);
-        }, flipStart);
+/* The divisibility rules worth knowing, in the order they are worth trying.
+   These SAY what fits and stop there.  Working out the quotient is the
+   student's job, so no rule here ever divides anything. */
+function digitSum(n){return String(n).split("").reduce(function(s,c){return s+ +c;},0);}
+const RULES=[
+    {p:2,both:function(a,b){return a+" and "+b+" both end in an even digit";},
+         no:function(n){return n+" is odd";}},
+    {p:3,both:function(a,b){return "their digits add to "+digitSum(a)+" and "+digitSum(b)+", both multiples of 3";},
+         no:function(n){return "the digits of "+n+" add to "+digitSum(n)+", not a multiple of 3";}},
+    {p:5,both:function(a,b){return "both end in 0 or 5";},
+         no:function(n){return n+" ends in "+String(n).slice(-1);}},
+    {p:7,both:function(a,b){return "counting by 7s reaches both";},
+         no:function(n){return "counting by 7s skips "+n;}},
+    {p:11,both:function(a,b){return "counting by 11s reaches both";},
+          no:function(n){return "counting by 11s skips "+n;}},
+    {p:13,both:function(a,b){return "counting by 13s reaches both";},
+          no:function(n){return "counting by 13s skips "+n;}}
+];
+/* try the rules in order, stop at the first one that fits, and name it.
+   What it divides to is deliberately left blank. */
+function ruleScan(a,b){
+    let out="";
+    for(let i=0;i<RULES.length;i++){
+        const r=RULES[i];
+        if(a%r.p===0&&b%r.p===0){
+            out+='<div>'+r.p+'? '+r.both(a,b)+' \u2014 so <b>'+r.p+'</b> goes into both. '+
+                 'your turn: what does each one become?</div>';
+            return out;
+        }
+        out+='<div>'+r.p+'? '+r.no(a%r.p!==0?a:b)+'</div>';
+    }
+    out+='<div>nothing small fits \u2014 these two are already as low as they go</div>';
+    return out;
+}
 
-        // Change: division sign becomes a multiplication sign
-        kcfLater(() => {
-            const op = document.getElementById('kcfOperator');
-            if (!op) return;
-            op.classList.add('op-swap');
-            op.style.color = 'var(--primary)';
-            kcfLater(() => { op.innerHTML = '×'; }, 300);
-            kcfLater(() => show('kcfChangeLabel'), 600);
-        }, flipStart + 1000);
+/* ---------- the ladder ----------
+   Two numbers side by side inside an L, a shared factor pulled out to the
+   left, the quotients written underneath, again and again until nothing is
+   left in common.  Drawn the same way as the ladder in the adding-and-
+   subtracting drill so it is the same object in both places.  The student
+   drives every square of it; the ladder only checks.  One rung at a time
+   means 16 and 24 never needs anybody to know the rule for 8 - three twos
+   get there just as well. */
+function startLadder(host,a0,b0){
+    const wrap=document.createElement("div");wrap.className="ladwrap";
+    wrap.innerHTML='<div class="ladtag">ladder</div><div class="lad"></div>'+
+                   '<div class="ladnote"></div>';
+    host.appendChild(wrap);
+    const lad=wrap.querySelector(".lad"), note=wrap.querySelector(".ladnote");
 
-        // Flip: the second fraction turns over into its reciprocal
-        kcfLater(() => {
-            const second = document.getElementById('kcfSecond');
-            if (!second) return;
-            second.classList.add('flip-anim');
-            kcfLater(() => {
-                second.innerHTML = formatFractionHTML(p.flippedNum, p.flippedDen);
-            }, 350);
-            kcfLater(() => show('kcfFlipLabel'), 700);
-        }, flipStart + 2000);
+    const rows=[{f:null,a:a0,b:b0}];
+    let phase=gcd(a0,b0)>1?"f":"done";
+    let nudge=null;
+    const last=function(){return rows[rows.length-1];};
+    const prev=function(){return rows[rows.length-2];};
+    const factors=function(){
+        return rows.filter(function(r){return r.f!==null;}).map(function(r){return r.f;});
+    };
+    function say(html){note.innerHTML=html||"";}
 
-        // Move on to cross-simplifying
-        kcfLater(() => {
-            const fb = document.getElementById('feedback1');
-            fb.className = 'feedback correct';
-            fb.innerHTML = 'Rewritten as multiplication. Now cross-simplify.';
-            kcfLater(() => setStep(2), 1200);
-        }, flipStart + 3000);
+    function draw(){
+        let html="";
+        rows.forEach(function(r,i){
+            const isLast=i===rows.length-1;
+            const slot='<span class="lslot"></span>';
+            /* the dividing stops when the two numbers share nothing but 1, so a
+               1 is written on the outside of that last rung: the ladder says
+               why it ended instead of just ending */
+            const oneOut=isLast&&phase==="done";
+            const f=r.f!==null?'<span class="lnum">'+r.f+'</span>'
+                              :(isLast&&phase==="f"?slot
+                              :(oneOut?'<span class="lnum one">1</span>':""));
+            function num(v,which){
+                if(isLast&&phase===which) return '<span class="lc">'+slot+'</span>';
+                if(v===null) return '<span class="lc"></span>';
+                return '<span class="lc"><span class="lnum'+
+                       (isLast&&phase==="done"?" hot":"")+'">'+v+'</span></span>';
+            }
+            /* a row keeps its bracket while it is still the row being divided */
+            const boxed=!isLast||phase==="f"||rows.length===1;
+            html+='<div class="lrow"><span class="lf">'+f+'</span>'+
+                  '<span class="lnums'+(boxed?" box":"")+'">'+num(r.a,"a")+
+                  '<span class="lgap"></span>'+num(r.b,"b")+'</span></div>';
+        });
+        lad.innerHTML=html;
+        place();
+        if(phase==="done") settled();
     }
 
-    function setupStep2() {
-        const p = currentProblem;
-        const container = document.getElementById('crossSimplifyVisualArea');
-        document.getElementById('feedback2').className = 'feedback';
-        document.getElementById('feedback2').innerHTML = '';
+    /* one live box at a time, dropped into whichever slot is being asked for */
+    function place(){
+        const slot=wrap.querySelector(".lslot");
+        if(!slot) return;
+        const el=document.createElement("input");
+        el.type="text";el.inputMode="numeric";el.autocomplete="off";el.className="lbox";
+        slot.replaceWith(el);
+        el.oninput=function(){read(el);};
+        el.focus();
+    }
 
-        let topNum1HTML = `${p.absF1.num}`;
-        let botDen2HTML = `${p.flippedDen}`;
-        let topNum2HTML = `${p.flippedNum}`;
-        let botDen1HTML = `${p.absF1.den}`;
+    function read(el){
+        clearTimeout(nudge);
+        const raw=el.value.replace(/[^0-9]/g,"");
+        if(el.value!==raw) el.value=raw;
+        const v=raw===""?null:parseInt(raw,10);
+        if(v===null){say("");return;}
+        const r=last();
 
-        if (p.g1 > 1) {
-            topNum1HTML += `<input type="number" id="cross_box1" class="cross-input" style="top: -28px; left: -14px;" oninput="checkCrossPair('pair1')">`;
-            botDen2HTML += `<input type="number" id="cross_box2" class="cross-input" style="bottom: -28px; right: -28px;" oninput="checkCrossPair('pair1')">`;
+        if(phase==="f"){
+            if(v>1&&r.a%v===0&&r.b%v===0){
+                say("");el.disabled=true;
+                r.f=v;rows.push({f:null,a:null,b:null});phase="a";later(draw,220);
+            }else{
+                nudge=setTimeout(function(){say(ruleScan(r.a,r.b));},1600);
+            }
+            return;
         }
-
-        if (p.g2 > 1) {
-            topNum2HTML += `<input type="number" id="cross_box3" class="cross-input" style="top: -28px; right: -14px;" oninput="checkCrossPair('pair2')">`;
-            botDen1HTML += `<input type="number" id="cross_box4" class="cross-input" style="bottom: -28px; left: -28px;" oninput="checkCrossPair('pair2')">`;
+        if(phase==="a"){
+            if(v===prev().a/prev().f){r.a=v;phase="b";say("");draw();}
+            else nudge=setTimeout(function(){
+                say('<div>how many '+prev().f+'s are in '+prev().a+'?</div>');},1900);
+            return;
         }
+        if(phase==="b"){
+            if(v===prev().b/prev().f){
+                r.b=v;
+                phase=gcd(r.a,r.b)>1?"f":"done";
+                say(phase==="f"?'<div>'+r.a+' and '+r.b+' still share something - keep going.</div>':"");
+                draw();
+            }else nudge=setTimeout(function(){
+                say('<div>how many '+prev().f+'s are in '+prev().b+'?</div>');},1900);
+        }
+    }
 
-        container.innerHTML = `
-            <div style="display: flex; justify-content: center; align-items: center; gap: 12px;">
-                <div class="fraction-display">
-                    <span class="numerator" id="topNum1">${topNum1HTML}</span>
-                    <span class="denominator" id="botDen1">${botDen1HTML}</span>
-                </div>
-                <span style="font-weight: bold;">×</span>
-                <div class="fraction-display">
-                    <span class="numerator" id="topNum2">${topNum2HTML}</span>
-                    <span class="denominator" id="botDen2">${botDen2HTML}</span>
-                </div>
-            </div>
-        `;
+    function settled(){
+        const r=last(), used=factors();
+        let h='<div><b>'+r.a+'</b> and <b>'+r.b+'</b> are as low as they go.</div>';
+        if(used.length>1)
+            h+='<div class="gcf">down the side: '+used.join(" "+TIMES+" ")+
+               " = "+used.reduce(function(p,q){return p*q;},1)+
+               ", the one number you could have divided by all at once.</div>";
+        say(h);
+    }
 
-        window._crossAnswers = {
-            1: p.redNum1,
-            2: p.redFlippedDen,
-            3: p.redFlippedNum,
-            4: p.redDen1
+    draw();
+    return {el:wrap,stop:function(){clearTimeout(nudge);}};
+}
+
+/* ---------- which kind of help a pair gets ----------
+   The ladder is for numbers nobody can take apart in their head: 129 and 15
+   is a real question, and climbing down it is worth the room it takes up.
+   For ordinary numbers it is too much apparatus for too little - so the help
+   there just names the factor and hands the dividing back. */
+function bigPair(a,b){return Math.max(a,b)>=50&&Math.min(a,b)>=10;}
+
+/* the quiet button that helps with whichever pair is live, and takes the help
+   away again the moment that pair is finished with */
+function cancelHelp(line,getPair){
+    const btn=document.createElement("button");
+    btn.type="button";btn.className="help";btn.textContent="show me how";
+    btn.onmousedown=function(e){e.preventDefault();};
+    let host=null, lad=null;
+    function close(){
+        if(lad) lad.stop();
+        if(host) host.remove();
+        host=null;lad=null;btn.textContent="show me how";
+    }
+    btn.onclick=function(){
+        if(host){close();return;}
+        const p=getPair();
+        if(!p) return;
+        stat.helps++;
+        host=document.createElement("div");
+        line.querySelector(".body").appendChild(host);
+        const a=p[0],b=p[1],g=gcd(a,b);
+        if(bigPair(a,b)&&g>1){
+            lad=startLadder(host,a,b);
+            btn.textContent="hide";
+        }else{
+            /* the factor, said outright, and the dividing left to them */
+            host.className="guide";
+            host.innerHTML='<div class="beat"><b>'+g+'</b> goes into both '+a+
+                ' and '+b+'. divide each of them by '+g+' and write what they become.</div>';
+            btn.textContent="hide";
+        }
+        later(function(){host.scrollIntoView({block:"nearest",behavior:"smooth"});},80);
+        const open=[].slice.call(line.querySelectorAll(".cbox,.blank"))
+                     .filter(function(x){return !x.disabled;})[0];
+        if(open&&!(lad)) open.focus();
+    };
+    line.querySelector(".expr").appendChild(btn);
+    return {close:close,drop:function(){close();btn.remove();}};
+}
+
+/* ---------- lining one line up under the line above it ----------
+   What has to sit in a column is the whole term, not the fraction inside it.
+   Measuring the fraction bars was what threw the improper line out: the bar
+   of a mixed number like -1 1/4 is well to the right of where the number
+   starts, so the fraction it turns into was pushed out past the divide sign
+   and left a hole in the middle of the line.  Terms and signs are matched up
+   in order instead, so 5/4 lands under the -1 1/4 it came from and the sign
+   between them stays where it was written.
+
+   Margins are cleared first, so this can be run again after a blank has been
+   replaced by the number that went in it without the shifts piling up. */
+function slotsOf(expr){
+    return [].slice.call(expr.children).filter(function(x){
+        return x.classList.contains("term")||x.classList.contains("op");
+    });
+}
+function curZoom(){
+    const z=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--z"));
+    return z>0?z:1;
+}
+function alignUnder(line){
+    const prev=line.previousElementSibling;
+    if(!prev) return;
+    const pe=prev.querySelector(".expr"), ce=line.querySelector(".expr");
+    if(!pe||!ce) return;
+    const A=slotsOf(pe), B=slotsOf(ce);
+    if(!A.length||A.length!==B.length) return;
+    const z=curZoom();
+    B.forEach(function(x){x.style.marginLeft="";});
+    const base=pe.getBoundingClientRect().left, mine=ce.getBoundingClientRect().left;
+    for(let i=0;i<B.length;i++){
+        const want=A[i].getBoundingClientRect().left-base;
+        const have=B[i].getBoundingClientRect().left-mine;
+        const d=(want-have)/z;
+        if(d>0.5) B[i].style.marginLeft=d+"px";
+    }
+}
+
+/* the mixed number with the two arrows on it, the way it gets drawn on paper */
+let drawId=0;
+function mixedArrows(w,n,d){
+    const id="ah"+(++drawId);
+    return '<svg class="draw" viewBox="12 20 156 116" xmlns="http://www.w3.org/2000/svg">'+
+      '<defs><marker id="'+id+'" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" '+
+        'markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="var(--pencil)"/></marker></defs>'+
+      '<g font-family="Georgia,serif" font-size="31" fill="var(--ink)" text-anchor="middle">'+
+        '<text x="30" y="70">'+w+'</text>'+
+        '<text x="80" y="52">'+n+'</text>'+
+        '<text x="80" y="90">'+d+'</text>'+
+      '</g>'+
+      '<line x1="55" y1="60" x2="105" y2="60" stroke="var(--ink)" stroke-width="2"/>'+
+      '<g fill="none" stroke="var(--pencil)" stroke-width="2.4" stroke-linecap="round" '+
+        'marker-end="url(#'+id+')">'+
+        '<path d="M22 80 C 18 110, 56 118, 78 102"/>'+          /* multiply: whole to bottom */
+        '<path d="M112 92 C 142 86, 144 44, 112 36"/>'+         /* add: bottom to top */
+      '</g>'+
+      '<g font-family="Georgia,serif" font-size="20" fill="var(--pencil)" text-anchor="middle">'+
+        '<text x="34" y="126">'+TIMES+'</text>'+
+        '<text x="152" y="40">+</text>'+
+      '</g>'+
+      '</svg>';
+}
+
+/* the same mixed number with the bottom number ringed */
+function circledDen(w,n,d){
+    const rx=String(d).length>1?26:20;
+    return '<svg class="draw ring" viewBox="12 22 104 86" xmlns="http://www.w3.org/2000/svg">'+
+      '<g font-family="Georgia,serif" font-size="31" fill="var(--ink)" text-anchor="middle">'+
+        '<text x="30" y="70">'+w+'</text>'+
+        '<text x="80" y="52">'+n+'</text>'+
+        '<text x="80" y="90">'+d+'</text>'+
+      '</g>'+
+      '<line x1="55" y1="60" x2="105" y2="60" stroke="var(--ink)" stroke-width="2"/>'+
+      '<ellipse cx="80" cy="81" rx="'+rx+'" ry="16" transform="rotate(-8 80 81)" '+
+        'fill="none" stroke="var(--pencil)" stroke-width="2.4"/>'+
+      '</svg>';
+}
+
+/* a line of multiples, with the last one that still fits marked */
+function countRow(d,limit){
+    const top=Math.floor(limit/d),count=Math.max(3,top+1);
+    let s=d+": ";
+    for(let k=1;k<=count;k++){
+        const v=d*k;
+        s+=(k===top?"<b>"+v+"</b>":v)+(k<count?" &nbsp;":"");
+    }
+    return '<div class="rows"><div>'+s+'</div></div>';
+}
+
+/* ============================ how the problem is written ============================ */
+function operandHTML(i,withSign){
+    const m=i===1?P.isMixed1:P.isMixed2;
+    const w=i===1?P.w1:P.w2, n=i===1?P.n1:P.n2, d=i===1?P.d1:P.d2;
+    const neg=withSign&&((i===1?P.s1:P.s2)<0);
+    if(m) return termHTML((neg?MINUS:"")+w,String(n),String(d));
+    /* a whole number is written whole; the flip step turns it into n/1 */
+    if(d===1) return '<span class="term whole">'+(neg?MINUS:"")+n+'</span>';
+    return '<span class="term">'+(neg?'<span class="lead">'+MINUS+'</span>':"")+
+           fracHTML(String(n),String(d))+'</span>';
+}
+function problemHTML(){
+    return operandHTML(1,true)+opHTML(DIV)+operandHTML(2,true);
+}
+/* the answer, with its sign attached, once the sign has been settled */
+function finalAnswerHTML(){
+    const m=P.neg?'<span class="lead">'+MINUS+'</span>':"";
+    if(P.needsRegroup)
+        return '<span class="term">'+m+'<span class="whole">'+P.whole+'</span>'+
+               fracHTML(String(P.rem),String(P.simpDen))+'</span>';
+    if(P.simpDen===1) return '<span class="term">'+m+P.simpNum+'</span>';
+    return '<span class="term">'+m+fracHTML(String(P.simpNum),String(P.simpDen))+'</span>';
+}
+
+/* the same two things again in plain text, for the sheet that gets handed in */
+function operandText(i){
+    const m=i===1?P.isMixed1:P.isMixed2;
+    const w=i===1?P.w1:P.w2, n=i===1?P.n1:P.n2, d=i===1?P.d1:P.d2;
+    const sg=(i===1?P.s1:P.s2)<0?"-":"";
+    if(m) return sg+w+" "+n+"/"+d;
+    if(d===1) return sg+n;
+    return sg+n+"/"+d;
+}
+function problemText(){return operandText(1)+" \u00F7 "+operandText(2);}
+function answerText(){
+    const m=P.neg?"-":"";
+    if(P.needsRegroup) return m+P.whole+" "+P.rem+"/"+P.simpDen;
+    if(P.simpDen===1) return m+P.simpNum;
+    return m+P.simpNum+"/"+P.simpDen;
+}
+
+/* ============================ steps ============================ */
+/* the last thing you settle: look back at the two signs and say what the answer is */
+function stepSign(){
+    const line=addLine("sign",eqHTML()+
+        '<button class="sbtn" data-s="p">+</button><button class="sbtn" data-s="n">'+MINUS+'</button>');
+    const want=P.neg?"n":"p";
+    line.querySelectorAll(".sbtn").forEach(function(b){
+        b.onclick=function(){
+            if(b.dataset.s!==want){
+                b.classList.add("no");
+                setTimeout(function(){b.classList.remove("no");},350);
+                return;
+            }
+            line.querySelectorAll(".sbtn").forEach(function(x){x.disabled=true;x.onclick=null;});
+            line.querySelector(".expr").innerHTML=eqHTML()+finalAnswerHTML();
+            later(nextStep,300);
         };
+    });
+}
 
-        setTimeout(() => {
-            if (p.g1 > 1) {
-                document.getElementById('cross_box1').focus();
-            } else if (p.g2 > 1) {
-                document.getElementById('cross_box3').focus();
-            } else {
-                setStep(3);
-            }
-        }, 50);
+/* ---------- mixed numbers into improper fractions ----------
+   One number at a time.  The line is written out underneath the problem with
+   a blank fraction standing where each mixed number was, and the mixed number
+   being worked on is lit up above it, so the fraction that gets written lands
+   directly under the number it came from.  Only when the first one is finished
+   does the second one open, which is the order it would be done in on paper -
+   the old version converted both at once off in the margin and then produced
+   a whole new line, so the two numbers seemed to change in one jump. */
+function stepImproper(){
+    const jobs=[];
+    let html="";
+    for(let i=1;i<=2;i++){
+        const m=i===1?P.isMixed1:P.isMixed2;
+        const w=i===1?P.w1:P.w2, n=i===1?P.n1:P.n2, d=i===1?P.d1:P.d2;
+        const num=i===1?P.num1:P.num2, den=i===1?P.den1:P.den2;
+        if(m){
+            const f=fracHTML(blank(52),blank(52));
+            jobs.push({i:i,w:w,n:n,d:d,num:num,den:den,
+                       nId:"k"+(boxId-1),dId:lastId(),box:null,step:0});
+            html+='<span class="term" id="im'+i+'">'+f+'</span>';
+        }else{
+            html+='<span class="term" id="im'+i+'">'+fracHTML(String(num),String(den))+'</span>';
+        }
+        if(i===1) html+=opHTML(DIV);
     }
 
-    function checkCrossPair(pairName) {
-        const p = currentProblem;
-        let pair1Done = true;
-        let pair2Done = true;
+    const line=addLine("improper",html);
+    alignUnder(line);
 
-        if (p.g1 > 1) {
-            const cb1 = document.getElementById('cross_box1');
-            const cb2 = document.getElementById('cross_box2');
-            
-            const val1 = parseInt(cb1.value);
-            if (cb1.value !== "" && !isNaN(val1) && val1 === window._crossAnswers[1] && document.activeElement === cb1) {
-                cb1.disabled = true;
-                cb1.style.backgroundColor = 'var(--sage-soft)';
-                cb2.focus();
-            }
-
-            if (cb1.value === "" || parseInt(cb1.value) !== window._crossAnswers[1] ||
-                cb2.value === "" || parseInt(cb2.value) !== window._crossAnswers[2]) {
-                pair1Done = false;
-            } else {
-                cb1.disabled = true;
-                cb2.disabled = true;
-                cb1.style.backgroundColor = 'var(--sage-soft)';
-                cb2.style.backgroundColor = 'var(--sage-soft)';
-            }
-        }
-
-        if (p.g2 > 1) {
-            const cb3 = document.getElementById('cross_box3');
-            const cb4 = document.getElementById('cross_box4');
-
-            const val3 = parseInt(cb3.value);
-            if (cb3.value !== "" && !isNaN(val3) && val3 === window._crossAnswers[3] && document.activeElement === cb3) {
-                cb3.disabled = true;
-                cb3.style.backgroundColor = 'var(--sage-soft)';
-                cb4.focus();
-            }
-
-            if (cb3.value === "" || parseInt(cb3.value) !== window._crossAnswers[3] ||
-                cb4.value === "" || parseInt(cb4.value) !== window._crossAnswers[4]) {
-                pair2Done = false;
-            } else {
-                cb3.disabled = true;
-                cb4.disabled = true;
-                cb3.style.backgroundColor = 'var(--sage-soft)';
-                cb4.style.backgroundColor = 'var(--sage-soft)';
-            }
-        }
-
-        if (p.g1 > 1 && p.g2 > 1 && pair1Done && !pair2Done) {
-            const cb3 = document.getElementById('cross_box3');
-            if (cb3 && !cb3.disabled && document.activeElement !== cb3) {
-                cb3.focus();
-            }
-        }
-
-        const fb = document.getElementById('feedback2');
-        if (pair1Done && pair2Done) {
-            fb.className = 'feedback correct';
-            fb.innerHTML = 'Cross-simplified. Now multiply across.';
-
-            setTimeout(() => {
-                setStep(3);
-            }, 600);
+    /* the mixed number being worked on, marked on the problem line above */
+    const src=line.previousElementSibling;
+    function litSrc(i){
+        if(!src) return;
+        src.querySelectorAll(".term").forEach(function(t){t.classList.remove("lit");});
+        if(i){
+            const t=src.querySelectorAll(".term")[i-1];
+            if(t) t.classList.add("lit");
         }
     }
 
-    function setupStep3() {
-        const p = currentProblem;
-        document.getElementById('step3DisplayArea').innerHTML = `
-            <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
-                ${formatFractionHTML(p.redNum1, p.redDen1)}
-                <span style="font-weight: bold; margin: 0 4px;">×</span>
-                ${formatFractionHTML(p.redFlippedNum, p.redFlippedDen)}
-            </div>
-        `;
-
-        const container = document.getElementById('multiplyContainer');
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; flex-wrap: wrap;">
-                <span style="font-weight: bold;">Product Fraction:</span>
-                ${formatFractionHTML('<input type="number" id="finalNumInput" class="std-input" placeholder="Num" style="width: 60px; border: none; background: transparent; font-size: 1.2rem;" oninput="checkStep3Auto()">', '<input type="number" id="finalDenInput" class="std-input" placeholder="Den" style="width: 60px; border: none; background: transparent; font-size: 1.2rem;" oninput="checkStep3Auto()">')}
-            </div>
-        `;
-
-        setTimeout(() => {
-            const fn = document.getElementById('finalNumInput');
-            if (fn) fn.focus();
-        }, 50);
+    /* the finished fraction, written in place of the blanks it was typed into */
+    function settle(j){
+        const slot=line.querySelector("#im"+j.i);
+        if(slot) slot.innerHTML=fracHTML(String(j.num),String(j.den));
+        litSrc(null);
+        alignUnder(line);
     }
 
-    function checkStep3Auto() {
-        const p = currentProblem;
-        const fn = document.getElementById('finalNumInput');
-        const fd = document.getElementById('finalDenInput');
-        const fb = document.getElementById('feedback3');
-
-        const userNum = parseInt(fn.value);
-        const userDen = parseInt(fd.value);
-        
-        const isExactMatch = (userNum === p.rawNum && userDen === p.rawDen);
-
-        if (fn.value !== "" && userNum === p.rawNum && document.activeElement === fn) {
-            fn.disabled = true;
-            fn.style.backgroundColor = 'var(--inset)';
-            fd.focus();
+    /* one quiet button; it explains whichever number is being worked on */
+    let cur=null;
+    const btn=document.createElement("button");
+    btn.type="button";btn.className="help";btn.textContent="show me how";
+    btn.onmousedown=function(e){e.preventDefault();};
+    function refresh(){
+        if(!cur) return;
+        btn.style.display=cur.step<cur.beats.length?"":"none";
+        btn.textContent=cur.step?"next":"show me how";
+    }
+    btn.onclick=function(){
+        const j=cur;
+        if(!j) return;
+        if(!j.box){
+            j.box=document.createElement("div");j.box.className="guide";
+            line.querySelector(".body").appendChild(j.box);
         }
+        stat.helps++;
+        j.box.insertAdjacentHTML("beforeend",'<div class="beat">'+j.beats[j.step++]+'</div>');
+        refresh();
+        const open=[].slice.call(line.querySelectorAll("input")).filter(function(x){return !x.disabled;})[0];
+        if(open) open.focus();
+    };
+    line.querySelector(".expr").appendChild(btn);
 
-        if (fn.value !== "" && fd.value !== "") {
-            if (isExactMatch) {
-                fb.className = 'feedback correct';
-                fn.disabled = true;
-                fd.disabled = true;
-                fn.style.backgroundColor = 'var(--inset)';
-                fd.style.backgroundColor = 'var(--inset)';
-                proceedFromStep3();
-            }
-        }
+    const specs=[];
+    jobs.forEach(function(j){
+        const prod=j.w*j.d;
+        /* both halves of the conversion in one beat: the arrows that build the
+           new top, and the ring round the bottom that stays put */
+        j.beats=[
+            '<div class="pair">'+
+                '<div><div class="cap">the new top</div>'+
+                    '<div>bottom times the whole, then add the top</div>'+
+                    mixedArrows(j.w,j.n,j.d)+
+                    '<div class="eqline">'+j.w+' '+TIMES+' '+j.d+' + '+j.n+' =</div></div>'+
+                '<div><div class="cap">the new bottom</div>'+
+                    '<div>the denominator does not change</div>'+
+                    circledDen(j.w,j.n,j.d)+'</div>'+
+            '</div>',
+            '<div>'+j.w+' '+TIMES+' '+j.d+' = '+prod+', and '+prod+' + '+j.n+
+                ' = <b>'+j.num+'</b>, all of it still over '+j.d+'</div>'+
+                (j.w>1?countRow(j.d,prod):"")
+        ];
+        specs.push({id:j.nId,ans:j.num,
+            show:function(){cur=j;litSrc(j.i);refresh();},
+            hints:[{t:j.w+" "+TIMES+" "+j.d+" + "+j.n},{t:"= "+j.num}]});
+        specs.push({id:j.dId,ans:j.den,
+            show:function(){cur=j;refresh();},
+            ok:function(){settle(j);},
+            hints:[{t:"keep the same denominator"},{t:"= "+j.den}]});
+    });
+
+    runBoxes(line,specs,function(){
+        btn.remove();
+        litSrc(null);
+        /* the scratch work has done its job; clearing it keeps keep-change-flip
+           within arm's reach instead of a scroll away */
+        line.querySelectorAll(".guide").forEach(function(g){g.remove();});
+        alignUnder(line);
+        later(nextStep,420);
+    });
+}
+
+/* keep, change, flip: one tap each, then the reciprocal is written in */
+function stepFlip(){
+    const html='<span class="term tok" id="tKeep">'+fracHTML(String(P.num1),String(P.den1))+'</span>'+
+        '<span class="op" id="tOp">'+DIV+'</span>'+
+        '<span class="term" id="tSecond">'+fracHTML(String(P.num2),String(P.den2))+'</span>';
+    const line=addLine("keep",html);
+    alignUnder(line);
+    const tag=line.querySelector(".tag"), note=line.querySelector(".note");
+    const keep=line.querySelector("#tKeep"), op=line.querySelector("#tOp");
+    const second=line.querySelector("#tSecond");
+
+    note.textContent="tap the fraction you keep";note.classList.add("show");
+
+    keep.onclick=function(){
+        keep.onclick=null;
+        keep.classList.remove("tok");keep.classList.add("used");
+        tag.textContent="change";
+        note.textContent="tap the sign";
+        op.classList.add("tok");
+        op.onclick=function(){
+            op.onclick=null;
+            op.classList.remove("tok");op.classList.add("used");
+            if(!CALM) op.classList.add("swap");
+            later(function(){op.textContent=TIMES;},CALM?0:200);
+            later(writeReciprocal,CALM?0:470);
+        };
+    };
+
+    function writeReciprocal(){
+        tag.textContent="flip";
+        note.textContent="";note.classList.remove("show");
+        second.innerHTML=fracHTML(blank(52),blank(52));
+        const nId="k"+(boxId-1), dId=lastId();
+        runBoxes(line,[
+            {id:nId,ans:P.flipNum,hints:[
+                {t:"turn "+P.num2+"/"+P.den2+" over"},{t:"= "+P.flipNum}]},
+            {id:dId,ans:P.flipDen,hints:[{t:"= "+P.flipDen}]}
+        ],function(){
+            line.querySelectorAll(".used").forEach(function(e){e.classList.remove("used");});
+            nextStep();
+        });
+    }
+}
+
+function stepCancel(){
+    function cell(topId,top,botId,bot,topBox,botBox){
+        return '<span class="term"><span class="frac">'+
+               '<span class="frac-num"><span class="dig" id="'+topId+'">'+top+'</span>'+
+               (topBox?'<span class="over">'+cbox()+'</span>':"")+'</span>'+
+               '<span class="frac-den"><span class="dig" id="'+botId+'">'+bot+'</span>'+
+               (botBox?'<span class="under">'+cbox()+'</span>':"")+'</span></span></span>';
+    }
+    /* left fraction: numerator boxed with pair 1, denominator boxed with pair 2 */
+    let html=cell("dA",P.num1,"dB",P.den1,P.g1>1,false);
+    const aId=P.g1>1?lastId():null;
+    html+=opHTML(TIMES);
+    html+=cell("dC",P.flipNum,"dD",P.flipDen,P.g2>1,P.g1>1);
+    const cIds=[];
+    if(P.g2>1) cIds.push("k"+(boxId-(P.g1>1?1:0)));
+    if(P.g1>1) cIds.push(lastId());
+
+    const line=addLine("cancel",html,"cancel");
+    alignUnder(line);
+
+    /* the left denominator needs its own box, added after the line exists */
+    let bId=null;
+    if(P.g2>1){
+        const den=line.querySelector("#dB").parentNode;
+        den.insertAdjacentHTML("beforeend",'<span class="under">'+cbox()+'</span>');
+        bId=lastId();
     }
 
-    function proceedFromStep3() {
-        const fb = document.getElementById('feedback3');
-        const signPrefix = userChosenSign === 'positive' ? '+' : '−';
-        const p = currentProblem;
-        setTimeout(() => {
-            if (needsSimplification) {
-                fb.innerHTML = 'Correct. Now reduce to lowest terms.';
-                setStep(3.5);
-            } else if (needsMixedNumber) {
-                fb.innerHTML = 'Correct. Now write it as a mixed number.';
-                setStep(4);
-            } else {
-                let finalValStr = p.finalDen === 1 ? `${p.finalNum}` : `${p.finalNum}/${p.finalDen}`;
-                fb.innerHTML = `Final answer: ${signPrefix}${finalValStr}. Press Enter to continue.`;
-                enableCompletionEnter();
-            }
-        }, 500);
+    /* whichever pair is live, so the ladder knows what to work on */
+    let pair=null, helper=null;
+
+    const specs=[];
+    if(P.g1>1){
+        const dId=cIds[cIds.length-1];
+        specs.push({id:aId,ans:P.redNum1,
+            show:function(){
+                litOnly(line,["dA","dD"]);
+                pair=[P.num1,P.flipDen];
+                if(helper) helper.close();
+            },
+            ok:function(){document.getElementById("dA").classList.add("struck");},
+            hints:[{t:P.num1+" and "+P.flipDen+" are both "+DIV+" "+P.g1},
+                   {t:"so how many "+P.g1+"s are in "+P.num1+"?"}]});
+        specs.push({id:dId,ans:P.redFlipDen,
+            ok:function(){document.getElementById("dD").classList.add("struck");},
+            hints:[{t:"now the bottom one, "+P.flipDen+" "+DIV+" "+P.g1},
+                   {t:"how many "+P.g1+"s are in "+P.flipDen+"?"}]});
+    }
+    if(P.g2>1){
+        specs.push({id:cIds[0],ans:P.redFlipNum,
+            show:function(){
+                litOnly(line,["dC","dB"]);
+                pair=[P.flipNum,P.den1];
+                if(helper) helper.close();
+            },
+            ok:function(){document.getElementById("dC").classList.add("struck");},
+            hints:[{t:P.flipNum+" and "+P.den1+" are both "+DIV+" "+P.g2},
+                   {t:"so how many "+P.g2+"s are in "+P.flipNum+"?"}]});
+        specs.push({id:bId,ans:P.redDen1,
+            ok:function(){document.getElementById("dB").classList.add("struck");},
+            hints:[{t:"now the other one, "+P.den1+" "+DIV+" "+P.g2},
+                   {t:"how many "+P.g2+"s are in "+P.den1+"?"}]});
     }
 
-    function setupStep3b() {
-        const p = currentProblem;
-        document.getElementById('step3bDisplayArea').innerHTML = `
-            <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
-                ${formatFractionHTML(p.rawNum, p.rawDen)}
-            </div>
-        `;
+    helper=cancelHelp(line,function(){return pair;});
 
-        const container = document.getElementById('simplifyContainer');
-        if (p.finalDen === 1) {
-            container.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; flex-wrap: wrap;">
-                    <span style="font-weight: bold;">Simplified Answer:</span>
-                    <input type="number" id="simpSingleInput" class="std-input" placeholder="Number" style="width: 100px; font-size: 1.2rem;" oninput="checkStep3bSingleAuto()">
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; flex-wrap: wrap;">
-                    <span style="font-weight: bold;">Simplified Fraction:</span>
-                    ${formatFractionHTML('<input type="number" id="simpNumInput" class="std-input" placeholder="Num" style="width: 60px; border: none; background: transparent; font-size: 1.2rem;" oninput="checkStep3bAuto()">', '<input type="number" id="simpDenInput" class="std-input" placeholder="Den" style="width: 60px; border: none; background: transparent; font-size: 1.2rem;" oninput="checkStep3bAuto()">')}
-                </div>
-            `;
-        }
+    runBoxes(line,specs,function(){
+        helper.drop();
+        litOnly(line,null);
+        nextStep();
+    });
+}
 
-        setTimeout(() => {
-            const target = document.getElementById('simpSingleInput') || document.getElementById('simpNumInput');
-            if (target) target.focus();
-        }, 50);
+/* ---------- multiplying ----------
+   Across the top first, then along the bottom.  Whichever pair is being
+   multiplied is lit up while its box is open, so there is never a question
+   about which two numbers the box is asking for. */
+function stepMultiply(){
+    function mf(nId,n,dId,d){
+        return '<span class="term"><span class="frac">'+
+               '<span class="frac-num"><span class="dig" id="'+nId+'">'+n+'</span></span>'+
+               '<span class="frac-den"><span class="dig" id="'+dId+'">'+d+'</span></span>'+
+               '</span></span>';
+    }
+    const html=mf("mA",P.redNum1,"mB",P.redDen1)+opHTML(TIMES)+
+               mf("mC",P.redFlipNum,"mD",P.redFlipDen)+eqHTML()+
+               fracHTML(blank(56),blank(56));
+    const nId="k"+(boxId-1), dId=lastId();
+    const line=addLine("multiply",html);
+    alignUnder(line);
+    runBoxes(line,[
+        {id:nId,ans:P.rawNum,
+            show:function(){litOnly(line,["mA","mC"]);},
+            hints:[{t:P.redNum1+" "+TIMES+" "+P.redFlipNum},{t:"= "+P.rawNum}]},
+        {id:dId,ans:P.rawDen,
+            show:function(){litOnly(line,["mB","mD"]);},
+            hints:[{t:P.redDen1+" "+TIMES+" "+P.redFlipDen},{t:"= "+P.rawDen}]}
+    ],function(){
+        litOnly(line,null);
+        nextStep();
+    });
+}
+
+function stepSimplify(){
+    let html=termHTML("",String(P.rawNum),String(P.rawDen))+eqHTML();
+    let nId,dId=null;
+    if(P.simpDen===1){
+        html+=blank(56);nId=lastId();
+    }else{
+        html+=fracHTML(blank(56),blank(56));
+        nId="k"+(boxId-1);dId=lastId();
+    }
+    const line=addLine("simplify",html);
+    const specs=[];
+    if(P.simpDen===1){
+        specs.push({id:nId,ans:P.simpNum,hints:[
+            {t:P.rawNum+" "+DIV+" "+P.rawDen},
+            {t:"how many "+P.rawDen+"s are in "+P.rawNum+"?"}]});
+    }else{
+        specs.push({id:nId,ans:P.simpNum,hints:[
+            {t:"is there a number that goes into both "+P.rawNum+" and "+P.rawDen+"?"},
+            {t:"both are "+DIV+" "+P.g+" \u2014 so how many "+P.g+"s are in "+P.rawNum+"?"}]});
+        specs.push({id:dId,ans:P.simpDen,hints:[
+            {t:"now the bottom, "+P.rawDen+" "+DIV+" "+P.g},
+            {t:"how many "+P.g+"s are in "+P.rawDen+"?"}]});
+    }
+    let helper=null;
+    if(P.g>1){
+        helper=cancelHelp(line,function(){return [P.rawNum,P.rawDen];});
+    }
+    runBoxes(line,specs,function(){
+        if(helper) helper.drop();
+        nextStep();
+    });
+}
+
+/* The long division on its own, with the two arrows that carry the answer:
+   the quotient down to the remainder, and the remainder across to the divisor. */
+function divArrows(num,den,whole,prod,rem){
+    const id="dv"+(++drawId);
+    const wide=Math.max(String(num).length,String(prod).length);
+    const xL=72, xR=xL+wide*17+16, xA=xR-8;
+    const rx=xA-String(rem).length*17;
+    const dx=58-String(den).length*8.5;   /* the middle of the divisor */
+    return '<svg class="draw dv" viewBox="6 18 '+(xR+62-6)+' 198" xmlns="http://www.w3.org/2000/svg">'+
+      '<defs><marker id="'+id+'" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" '+
+        'markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="var(--pencil)"/></marker></defs>'+
+      '<g font-family="Georgia,serif" font-size="30" fill="var(--ink)" text-anchor="end">'+
+        '<text x="'+xA+'" y="42">'+whole+'</text>'+
+        '<text x="58" y="88">'+den+'</text>'+
+        '<text x="'+xA+'" y="88">'+num+'</text>'+
+        '<text x="'+(xA-wide*17-3)+'" y="124">'+MINUS+'</text>'+
+        '<text x="'+xA+'" y="124">'+prod+'</text>'+
+        '<text x="'+xA+'" y="170">'+rem+'</text>'+
+      '</g>'+
+      '<path d="M'+(xL-6)+' 102 Q'+(xL+9)+' 78 '+(xL-6)+' 54 L'+xR+' 54" '+
+        'fill="none" stroke="var(--ink)" stroke-width="2"/>'+
+      '<line x1="'+(xL+2)+'" y1="136" x2="'+xR+'" y2="136" stroke="var(--ink)" stroke-width="2"/>'+
+      '<g fill="none" stroke="var(--pencil)" stroke-width="2.4" stroke-linecap="round" '+
+        'marker-end="url(#'+id+')">'+
+        '<path d="M'+(xR+14)+' 34 C'+(xR+54)+' 62, '+(xR+54)+' 136, '+(xR+16)+' 157"/>'+
+        '<path d="M'+(rx-6)+' 176 C'+(xL-28)+' 200, 14 168, '+dx+' 104"/>'+
+      '</g>'+
+      '</svg>';
+}
+
+function stepMixed(){
+    const num=P.simpNum, den=P.simpDen, prod=P.whole*den;
+    const html=termHTML("",String(num),String(den))+eqHTML()+
+               blank(46)+" "+fracHTML(blank(56),String(den));
+    const wId="k"+(boxId-1), nId=lastId();
+    const line=addLine("mixed",html);
+    helpButton(line,[divArrows(num,den,P.whole,prod,P.rem)]);
+    runBoxes(line,[
+        {id:wId,ans:P.whole,hints:[
+            {t:num+" "+DIV+" "+den},{t:"= "+P.whole+" and some left over"}]},
+        {id:nId,ans:P.rem,hints:[
+            {t:"what is left over"},{t:num+" "+MINUS+" "+prod+" = "+P.rem}]}
+    ],nextStep);
+}
+
+/* ============================ flow ============================ */
+const STEP={sign:stepSign,improper:stepImproper,flip:stepFlip,cancel:stepCancel,
+            multiply:stepMultiply,simplify:stepSimplify,mixed:stepMixed};
+
+function buildSequence(){
+    const s=[];
+    if(P.hasMixed) s.push("improper");
+    s.push("flip");
+    if(P.g1>1||P.g2>1) s.push("cancel");
+    s.push("multiply");
+    if(P.needsSimplify) s.push("simplify");
+    if(P.needsRegroup) s.push("mixed");
+    s.push("sign");
+    return s;
+}
+function goStep(i){seqIdx=i;resetHints();STEP[seq[i]]();}
+function nextStep(){
+    if(seqIdx+1<seq.length) goStep(seqIdx+1);
+    else finish();
+}
+
+function finish(){
+    const lines=sheet.querySelectorAll(".line");
+    lines[lines.length-1].classList.add("answer");
+    const b=document.createElement("div");
+    b.className="line in";
+    b.innerHTML='<span class="tag"></span><div class="body"><button class="next" id="nextBtn">next</button></div>';
+    sheet.appendChild(b);
+    later(function(){b.scrollIntoView({block:"nearest",behavior:"smooth"});},60);
+    wpDone=true;wpRender();
+    finished=true;
+
+    session.records.push({
+        q:problemText(),a:answerText(),
+        hints:stat.hints,helps:stat.helps,kind:fromRound?"round":kind,
+        clean:(stat.hints===0&&stat.helps===0)
+    });
+    updateTally();
+
+    /* At the end of the round the same button carries on to the form instead
+       of to another problem.  The card is raised by nextProblem rather than on
+       a timer here, so pressing next straight away cannot outrun it. */
+    const last=(!endless&&solved>=TARGET);
+    const nb=document.getElementById("nextBtn");
+    nb.textContent=last?"finish \u2014 enter your name":"next";
+    nb.onclick=nextProblem;
+}
+
+/* whether the problem on the sheet right now came out of the set of ten, so
+   the record can say which is which after everything is over */
+let fromRound=false;
+
+function initProblem(){
+    stat={hints:0,helps:0};
+    /* the set of ten comes first, in order.  Once it is behind them, roughly
+       one problem in three comes from the list of word problems and brings its
+       own numbers; the rest are generated, and get no panel. */
+    const fixed=roundItem();
+    fromRound=!!fixed;
+    let story;
+    if(fixed){
+        story=fixed.s?fixed:null;
+        problemCount=session.records.length+1;
+        P=buildP(fixed.x.n,fixed.x.d,fixed.y.n,fixed.y.d,
+                 !!fixed.x.m,!!fixed.y.m,fixed.x.s,fixed.y.s);
+    }else{
+        story=(Math.random()<0.34)?wpDraw():null;
+        P=story?buildP(story.x.n,story.x.d,story.y.n,story.y.d,
+                       !!story.x.m,!!story.y.m,story.x.s,story.y.s)
+               :generateProblem();
+    }
+    updateLocks();
+    finished=false;boxId=0;epoch++;resetHints();hintEl=null;
+    sheet.innerHTML="";
+    wpSet(story);
+    seq=buildSequence();
+    addLine(problemCount+".",problemHTML());
+    goStep(0);
+    window.scrollTo(0,0);
+}
+
+let lastAdvance=0;
+function nextProblem(){
+    const now=Date.now();
+    if(now-lastAdvance<350) return;
+    lastAdvance=now;
+    /* ten done, and they have not already chosen to keep going: the form */
+    if(!endless&&solved>=TARGET){showSubmitCard(true);return;}
+    problemCount++;
+    initProblem();
+}
+
+/* ============================ turning it in ============================
+   The same submission the rest of the study guide uses: one Google Form,
+   period and the two names read back before anything is sent, and the drill
+   waiting underneath for whoever wants to carry on.
+
+   The names here are the ones the shell's bridge script looks for, so this
+   sheet can be dropped into the combined page beside the other drills and
+   report itself without being touched: solved, cleanSolves, TARGET, endless,
+   submitted, showSubmitCard(), submitEarly(), keepDrilling(), newProblem(),
+   and the ids submitCard, submitEarlyBtn, gform, studentName, formScore. */
+var DRILL_NAME = "Dividing Fractions \u2014 Study Guide";
+var TARGET = 10;
+var solved = 0, cleanSolves = 0, bestStreak = 0, endless = false, submitted = false;
+/* how many problems were on the sheet the last time something was sent, so a
+   student who turns in early and then keeps going can send the rest too */
+var submittedAt = 0;
+
+function el(id){return document.getElementById(id);}
+
+/* the record kept fresh, so the shell can read it off at any moment */
+function updateTally(){
+    solved=session.records.length;
+    cleanSolves=0;bestStreak=0;
+    let run=0;
+    session.records.forEach(function(r){
+        if(r.clean){cleanSolves++;run++;if(run>bestStreak)bestStreak=run;}
+        else run=0;
+    });
+    updateLocks();
+}
+
+/* ---------- what is available, and when ----------
+   While the set of ten is still owed there is nothing to choose: no skipping
+   a problem you would rather not do, no switching to an easier skill, and
+   nothing to turn in yet.  The keys stay on the bar the whole time, dimmed,
+   with the count beside them saying why \u2014 a key that vanishes and comes back
+   is more confusing than one that is plainly waiting.  When the ten are done
+   every one of them opens up and stays open. */
+function updateLocks(){
+    const left=roundLeft(), lock=inRound();
+    document.querySelectorAll(".tools button[data-kind]").forEach(function(b){
+        b.classList.toggle("mute",lock);
+    });
+    el("skip").classList.toggle("mute",lock);
+    /* turning in is never locked.  Skipping a problem you would rather not do
+       is one thing; running out of time is another, and a student who has to
+       hand in four of the ten needs those four to count. */
+    el("submitEarlyBtn").classList.remove("mute");
+    const tag=el("roundTag");
+    tag.classList.toggle("done",left===0);
+    if(lock)
+        tag.textContent=left>0
+            ? (session.records.length+1)+" of "+TARGET
+            : "all "+TARGET+" done";
+    else
+        tag.textContent=submitted?"turned in":"practice";
+}
+
+/* the problem still open on the sheet when the bell goes: it counts as work
+   done even though it has no answer yet, so it gets handed in as it stands */
+const STEPNAME={improper:"changing to improper fractions",flip:"keep, change, flip",
+    cancel:"cancelling",multiply:"multiplying",simplify:"simplifying",
+    mixed:"writing it as a mixed number",sign:"deciding the sign"};
+function inProgress(){
+    if(finished||!seq.length||!P||P.den1===undefined) return null;
+    return {q:problemText(),step:STEPNAME[seq[seqIdx]]||seq[seqIdx]};
+}
+
+/* how many of each kind were worked, for the teacher's line on the form */
+function breakdown(){
+    const n={round:0,fractions:0,mixed:0,both:0};
+    session.records.forEach(function(r){n[r.kind]=(n[r.kind]||0)+1;});
+    const bits=[];
+    if(n.round) bits.push("set "+n.round+"/"+TARGET);
+    if(n.fractions) bits.push("F "+n.fractions);
+    if(n.mixed) bits.push("MN "+n.mixed);
+    if(n.both) bits.push("B "+n.both);
+    return bits.join(", ");
+}
+
+function esc(t){
+    return String(t).replace(/[&<>"]/g,function(c){
+        return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+    });
+}
+
+/* ---------- the card ---------- */
+function cardShowing(){return el("submitCard").classList.contains("show");}
+/* the sheet and the card take turns; the corner keys go away with the sheet,
+   because everything they do has a plain button on the card instead */
+function setCard(on){
+    el("submitCard").classList.toggle("show",on);
+    el("drillMain").style.display=on?"none":"";
+    document.body.classList.toggle("oncard",on);
+}
+
+function showSubmitCard(completed){
+    updateTally();
+    clearHint();resetHints();
+    setCard(true);
+
+    el("submitTitle").textContent=completed
+        ? "All "+TARGET+" done \u2014 "+solved+" problems solved"
+        : solved+(solved===1?" problem solved":" problems solved");
+    el("submitNote").textContent=completed
+        ? "That is the whole set. Enter your period and name to submit. Nothing stops here \u2014 skip, the skill keys and the word problems are all open now, so keep practicing as long as you like."
+        : "Enter your period and name to submit what you have so far. Nothing is lost by doing this \u2014 go back afterwards, carry on with the set, and send it again if you get further.";
+
+    /* Only the count of work done is shown here.  The streak and the clean
+       solves still go up with the submission - the teacher gets both on the
+       form - but a scoreboard is the wrong thing to put in front of somebody
+       who has just spent ten problems being careful. */
+    el("recap").innerHTML='<div>Problems worked<b>'+solved+'</b></div>';
+
+    /* every problem worked, in order, with the one still open at the end */
+    const open=inProgress();
+    let log="";
+    if(session.records.length||open){
+        log='<div class="log">';
+        session.records.forEach(function(r,i){
+            const marks=[];
+            if(r.hints) marks.push(r.hints+" hint"+(r.hints>1?"s":""));
+            if(r.helps) marks.push(r.helps+" example"+(r.helps>1?"s":""));
+            log+='<div class="logrow"><span class="logn">'+(i+1)+'.</span>'+
+                 '<span class="logq">'+esc(r.q)+' = '+esc(r.a)+'</span>'+
+                 '<span class="logh">'+(marks.length?marks.join(", "):"on your own")+'</span></div>';
+        });
+        if(open)
+            log+='<div class="logrow"><span class="logn">'+(solved+1)+'.</span>'+
+                 '<span class="logq">'+esc(open.q)+'</span>'+
+                 '<span class="logh">still on '+open.step+'</span></div>';
+        log+='</div>';
+    }else{
+        log='<div class="logempty">Nothing finished yet \u2014 work goes in here as you go.</div>';
+    }
+    el("workLog").innerHTML=log;
+
+    /* Turning in early does not close the sheet.  If they carry on afterwards
+       and get further, the form comes back so the fuller sheet can be sent as
+       well; the teacher takes the later one. */
+    const more=submitted&&solved>submittedAt;
+    el("gform").style.display=(!submitted||more)?"":"none";
+    const btn=document.querySelector("#gform .submit-btn");
+    if(more){
+        el("formFeedback").innerHTML=
+            '<span class="resend">You turned in '+submittedAt+' \u2014 you have '+
+            solved+' now. Send it again and the newer one counts.</span>';
+        btn.textContent="Send updated results";
+    }else if(!submitted){
+        el("formFeedback").innerHTML="";
+        btn.textContent="Submit Results";
     }
 
-    function checkStep3bSingleAuto() {
-        const p = currentProblem;
-        const sInput = document.getElementById('simpSingleInput');
-        const fb = document.getElementById('feedback3b');
+    /* mid-set, the only thing on offer underneath is going back to the set:
+       the skill keys are still the set's to hold */
+    const mid=roundLeft()>0;
+    document.querySelectorAll(".after-submit [data-go]").forEach(function(b){
+        b.classList.toggle("mute",mid);
+    });
+    document.querySelector(".after-submit .lab").textContent=
+        mid?("still "+roundLeft()+" left in the set:"):"keep practicing:";
+    el("keepBtn").textContent=mid?"go back and carry on":"back to this one";
 
-        if (sInput.value !== "" && parseInt(sInput.value) === p.finalNum) {
-            fb.className = 'feedback correct';
-            sInput.disabled = true;
-            sInput.style.backgroundColor = 'var(--inset)';
-            proceedFromStep3b();
-        }
+    el("formScore").value=solved;
+    try{window.scrollTo(0,0);}catch(e){}
+}
+
+/* Called by the turn-in key and by the shell when the bell goes.  Whatever is
+   on the sheet at that moment goes in, finished set or not. */
+function submitEarly(){
+    updateTally();
+    showSubmitCard(roundLeft()===0);
+}
+
+/* Going back to work only switches off the round prompt once the round has
+   actually been reached.  Turning in early and carrying on must not cost
+   somebody the ten-problem card they never got to. */
+function resumeDrill(){
+    if(solved>=TARGET) endless=true;
+    setCard(false);
+    updateLocks();
+}
+function keepDrilling(){
+    resumeDrill();
+    if(finished){
+        /* they had already finished that one; give them a fresh problem */
+        nextProblem();
+    }else{
+        const open=[].slice.call(document.querySelectorAll("#sheet input"))
+                     .filter(function(x){return !x.disabled;})[0];
+        if(open) open.focus();
     }
+}
+/* the shell says newProblem when it hands control back */
+function newProblem(){nextProblem();}
 
-    function checkStep3bAuto() {
-        const p = currentProblem;
-        const sn = document.getElementById('simpNumInput');
-        const sd = document.getElementById('simpDenInput');
-        const fb = document.getElementById('feedback3b');
+function showSubmittedMessage(){
+    el("formFeedback").innerHTML=
+        '<span style="color:#3f7d55;font-weight:600;">Successfully submitted. '+
+        'You can close this page, or keep practicing below.</span>';
+    el("gform").style.display="none";
+    updateLocks();
+}
+function onHiddenFrameLoad(){if(submitted) showSubmittedMessage();}
 
-        const userNum = parseInt(sn.value);
-        const userDen = parseInt(sd.value);
-
-        const isExactMatch = (userNum === p.finalNum && userDen === p.finalDen);
-
-        if (sn.value !== "" && userNum === p.finalNum && document.activeElement === sn) {
-            sn.disabled = true;
-            sn.style.backgroundColor = 'var(--inset)';
-            sd.focus();
-        }
-
-        if (sn.value !== "" && sd.value !== "") {
-            if (isExactMatch) {
-                fb.className = 'feedback correct';
-                sn.disabled = true;
-                sd.disabled = true;
-                sn.style.backgroundColor = 'var(--inset)';
-                sd.style.backgroundColor = 'var(--inset)';
-                proceedFromStep3b();
-            }
-        }
+/* ---------- the two names, read back before anything is sent ----------
+   Last and first get swapped constantly, so the form shows what it is about
+   to send and makes them look at it once. */
+function nameCheck(){
+    const ln=el("lastName").value.trim(), fn=el("firstName").value.trim();
+    function row(tag,val){
+        return '<div class="row"><span class="tag">'+tag+'</span>'+
+               '<span class="val'+(val?"":" empty")+'">'+(val?esc(val):"\u2014")+'</span></div>';
     }
+    el("nameCheck").innerHTML=
+        '<div class="checkhead">This is what will be sent \u2014 check it is the '+
+        'right way round:</div>'+
+        row("Last name",ln)+row("First name",fn)+
+        row("Roll call",(ln&&fn)?ln+", "+fn:"");
+}
+["lastName","firstName"].forEach(function(id){
+    el(id).addEventListener("input",nameCheck);
+});
+nameCheck();
 
-    function proceedFromStep3b() {
-        const fb = document.getElementById('feedback3b');
-        const signPrefix = userChosenSign === 'positive' ? '+' : '−';
-        const p = currentProblem;
-        setTimeout(() => {
-            if (needsMixedNumber) {
-                fb.innerHTML = 'Correct. Now write it as a mixed number.';
-                setStep(4);
-            } else {
-                let finalValStr = p.finalDen === 1 ? `${p.finalNum}` : `${p.finalNum}/${p.finalDen}`;
-                fb.innerHTML = `Final answer: ${signPrefix}${finalValStr}. Press Enter to continue.`;
-                enableCompletionEnter();
-            }
-        }, 500);
-    }
+/* One press sends it.  The read-back above the button is live, so the names
+   have already been shown the right way round the whole time somebody was
+   typing them; asking for a second press to confirm what is sitting there in
+   front of them only made the button look broken the first time. */
+el("gform").addEventListener("submit",function(e){
+    const ln=el("lastName").value.trim(), fn=el("firstName").value.trim();
+    updateTally();
+    const bits=breakdown();
+    el("studentName").value=
+        "Period "+el("studentPeriod").value.trim()+
+        " \u2014 "+ln+
+        " \u2014 "+fn+
+        " \u2014 "+cleanSolves+" clean solves"+
+        " \u2014 "+DRILL_NAME+
+        (bits?" ("+bits+")":"");
+    el("formScore").value=solved;
+    submitted=true;submittedAt=solved;
+});
 
-    function setupStep4() {
-        const p = currentProblem;
-        document.getElementById('step4DisplayArea').innerHTML = `
-            <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
-                ${formatFractionHTML(p.finalNum, p.finalDen)}
-            </div>
-        `;
+/* ---------- getting back to work ---------- */
+el("keepBtn").onclick=keepDrilling;
+document.querySelectorAll(".after-submit [data-go]").forEach(function(b){
+    b.onclick=function(){
+        resumeDrill();
+        setKind(b.dataset.go);
+    };
+});
+el("submitEarlyBtn").onclick=function(){
+    if(cardShowing()) keepDrilling(); else submitEarly();
+};
 
-        const container = document.getElementById('mixedContainer');
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; flex-wrap: wrap;">
-                <span style="font-weight: bold;">Mixed Number:</span>
-                <input type="number" id="mixedWholeInput" class="std-input" placeholder="Whole" style="width: 60px; font-size: 1.1rem;" oninput="checkStep4Whole()">
-                ${formatFractionHTML('<input type="number" id="mixedNumInput" class="std-input" placeholder="Num" style="width: 50px; border: none; background: transparent; font-size: 1.1rem;" oninput="checkStep4Num()">', '<input type="number" id="mixedDenInput" value="' + p.mixedDen + '" readonly class="std-input" style="width: 50px; border: none; background: var(--inset); font-size: 1.1rem; text-align: center;">')}
-            </div>
-        `;
+/* dimmed keys ignore a click on their own, but a tab and a return would still
+   reach them, so the answer is no here as well */
+document.getElementById("skip").onclick=function(){if(inRound())return;nextProblem();};
+/* Enter moves the sheet on, but never while the form is up \u2014 there it
+   belongs to the form */
+document.addEventListener("keydown",function(e){
+    if(cardShowing()) return;
+    if(e.key==="Enter"&&finished){e.preventDefault();finished=false;nextProblem();}
+});
+/* ---------- bigger, smaller ---------- */
+const SIZES=[0.8,0.9,1,1.15,1.35,1.6,1.9,2.2];
+let sizeIdx=2;
+const zIn=document.getElementById("zIn"), zOut=document.getElementById("zOut");
+function applySize(){
+    document.documentElement.style.setProperty("--z",SIZES[sizeIdx]);
+    zIn.classList.toggle("mute",sizeIdx>=SIZES.length-1);
+    zOut.classList.toggle("mute",sizeIdx<=0);
+}
+zIn.onclick=function(){if(sizeIdx<SIZES.length-1){sizeIdx++;applySize();}};
+zOut.onclick=function(){if(sizeIdx>0){sizeIdx--;applySize();}};
+applySize();
 
-        setTimeout(() => {
-            const mw = document.getElementById('mixedWholeInput');
-            if (mw) mw.focus();
-        }, 50);
-    }
+/* switching skill starts the numbering over, but the record carries on:
+   whatever was worked through before is still there to be turned in */
+function setKind(k){
+    if(inRound()) return;          /* the set of ten is the set of ten */
+    if(cardShowing()) setCard(false);
+    kind=k;
+    document.querySelectorAll(".tools button[data-kind]").forEach(function(x){
+        x.classList.toggle("on",x.dataset.kind===k);
+    });
+    problemCount=1;
+    initProblem();
+}
+document.querySelectorAll(".tools button[data-kind]").forEach(function(b){
+    b.onclick=function(){setKind(b.dataset.kind);};
+});
 
-    function checkStep4Whole() {
-        const p = currentProblem;
-        const mw = document.getElementById('mixedWholeInput');
-        const mn = document.getElementById('mixedNumInput');
-        if (mw.value !== "" && parseInt(mw.value) === p.mixedWhole && document.activeElement === mw) {
-            mw.disabled = true;
-            mw.style.backgroundColor = 'var(--inset)';
-            mn.focus();
-        }
-    }
-
-    function checkStep4Num() {
-        const p = currentProblem;
-        const wholeVal = document.getElementById('mixedWholeInput').value;
-        const numVal = document.getElementById('mixedNumInput').value;
-        const fb = document.getElementById('feedback4');
-
-        if (wholeVal === "" || numVal === "") return;
-
-        const wVal = parseInt(wholeVal);
-        const nVal = parseInt(numVal);
-
-        if (wVal === p.mixedWhole && nVal === p.mixedNum) {
-            fb.className = 'feedback correct';
-            const signPrefix = userChosenSign === 'positive' ? '+' : '−';
-            fb.innerHTML = `Final answer: ${signPrefix} ${p.mixedWhole} ${p.mixedNum}/${p.mixedDen}. Press Enter to continue.`;
-            document.getElementById('mixedWholeInput').disabled = true;
-            document.getElementById('mixedNumInput').disabled = true;
-            document.getElementById('mixedWholeInput').style.backgroundColor = 'var(--inset)';
-            document.getElementById('mixedNumInput').style.backgroundColor = 'var(--inset)';
-
-            enableCompletionEnter();
-        }
-    }
-
-    function enableCompletionEnter() {
-        window.isProblemFinished = true;
-        document.addEventListener('keydown', handleCompletionEnter);
-    }
-
-    function handleCompletionEnter(e) {
-        if (e.key === 'Enter' && window.isProblemFinished) {
-            window.isProblemFinished = false;
-            document.removeEventListener('keydown', handleCompletionEnter);
-            advanceToNextProblem();
-        }
-    }
-
-    function advanceToNextProblem() {
-        currentProblemCount++;
-        initProblem();
-    }
-
-    window.onload = initProblem;
+initProblem();
 </script>
-
 </body>
 </html>
